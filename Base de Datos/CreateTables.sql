@@ -1,6 +1,9 @@
 -- Armando Castro, Stephanie Sandoval | Abr 17. 24
 -- Tarea Programada 02 | Base de Datos I
 
+-- Nota: al final de este script hay un codigo comentado
+-- Este, sirve para eliminar las tablas en caso de necesidad
+
 USE Vacaciones
 GO
 
@@ -93,12 +96,14 @@ CREATE TABLE BitacoraEvento (
 	FOREIGN KEY (IDTipoEvento) REFERENCES TipoEvento(ID)           -- FK a Tipo Evento
 );
 
-DROP TABLE BitacoraEvento;
-DROP TABLE DBError;
-DROP TABLE Error;
-DROP TABLE TipoEvento;
-DROP TABLE Movimiento;
-DROP TABLE Empleado;
-DROP TABLE Puesto;
-DROP TABLE TipoMovimiento;
-DROP TABLE Usuario;
+-- Codigo para eliminar las tablas en caso de necesidad
+
+-- DROP TABLE BitacoraEvento;
+-- DROP TABLE DBError;
+-- DROP TABLE Error;
+-- DROP TABLE TipoEvento;
+-- DROP TABLE Movimiento;
+-- DROP TABLE Empleado;
+-- DROP TABLE Puesto;
+-- DROP TABLE TipoMovimiento;
+-- DROP TABLE Usuario;
