@@ -1,13 +1,13 @@
 -- Armando Castro, Stephanie Sandoval | Abr 17. 24
 -- Tarea Programada 02 | Base de Datos I
 
+-- Crear las tablas de la base de datos
+
 -- Nota: al final de este script hay un codigo comentado
 -- Este, sirve para eliminar las tablas en caso de necesidad
 
 USE Vacaciones
 GO
-
--- Crear las tablas de la base de datos
 
 -- Tabla de puestos:
 CREATE TABLE Puesto (

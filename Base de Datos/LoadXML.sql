@@ -1,14 +1,22 @@
+-- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Tarea Programada 02 | Base de Datos I
+
+-- Script para la lectura del archivo XML
+-- El archivo se tiene de forma local en una de las computadoras
+-- Se lee y se mapea la informacion hacia las tablas correspondientes
+
+-- Declaracion de variable para almacenar el xml
 DECLARE @xmlData XML
 
--- Load XML data into @xmlData variable
-SELECT @xmlData = P
-FROM OPENROWSET (BULK 'C:\Users\Stephanie\Documents\SQL Server Management Studio\datos.xml', SINGLE_BLOB) AS puesto(P)
+-- Carga del xml en la variable creada
+SELECT @xmlData = X
+FROM OPENROWSET (BULK 'C:\Users\Stephanie\Documents\SQL Server Management Studio\datos.xml', SINGLE_BLOB) AS xmlfile(X)
 
--- Prepare the XML document
+-- Preparar el archivo xml
 DECLARE @value int
 EXEC sp_xml_preparedocument @value OUTPUT, @xmlData
 
--- Insert data from Puestos section into Puesto table
+-- Ingresar informacion de la seccion Puestos en la tabla Puesto
 INSERT INTO Puesto (Nombre, SalarioxHora)
 SELECT Nombre, SalarioxHora
 FROM OPENXML (@value, '/Datos/Puestos/Puesto' , 1)
@@ -36,7 +44,7 @@ WITH (
 	TipoAccion VARCHAR(64)
 )
 
--- Insert data from Empleados section into Empleado table
+-- Ingresar informacion de la seccion Empleados en la tabla Empleado
 INSERT INTO Empleado (IDPuesto, ValorDocumentoIdentidad, Nombre, FechaContratacion, SaldoVacaciones, EsActivo)
 SELECT
     P.Id AS IDPuesto,
@@ -46,9 +54,9 @@ SELECT
     0 AS SaldoVacaciones, -- Hardcoded value for SaldoVacaciones
     1 AS EsActivo -- Hardcoded value for EsActivo
 FROM @xmlData.nodes('/Datos/Empleados/empleado') AS E(empleado)
-JOIN Puesto AS P ON E.empleado.value('@Puesto', 'varchar(64)') = P.Nombre
+JOIN Puesto AS P ON E.empleado.value('@Puesto', 'varchar(64)') = P.Nombre                      -- Mapeo de informacion con Puesto
 
--- Insert data from Usuarios section into Usuario table
+-- Inresar informacion de la seccion Usuarios en la tabla Usuario
 INSERT INTO Usuario (ID, Username, Password)
 SELECT Id, Nombre, Pass
 FROM OPENXML (@value, '/Datos/Usuarios/usuario' , 1)
@@ -58,7 +66,7 @@ WITH (
     Pass VARCHAR(64)
 )
 
--- Insert data from Movimientos section into Movimiento table
+-- Ingresar informacion de la seccion Movimientos en la tabla Movimiento
 INSERT INTO Movimiento (IDEmpleado, IDTipoMovimiento, Fecha, Monto, NuevoSaldo, IDPostByUser, PostInIP, PostTime)
 SELECT
     E.Id AS IDEmpleado,
@@ -70,9 +78,9 @@ SELECT
     M.movimiento.value('@PostInIP', 'VARCHAR(64)') AS PostInIP,
     M.movimiento.value('@PostTime', 'VARCHAR(64)') AS PostTime
 FROM @xmlData.nodes('/Datos/Movimientos/movimiento') AS M(movimiento)
-JOIN Empleado AS E ON M.movimiento.value('@ValorDocId', 'INT') = E.ValorDocumentoIdentidad
-JOIN TipoMovimiento AS T ON M.movimiento.value('@IdTipoMovimiento', 'VARCHAR(64)') = T.Nombre
-JOIN Usuario AS U ON M.movimiento.value('@PostByUser', 'VARCHAR(64)') = U.Username
+JOIN Empleado AS E ON M.movimiento.value('@ValorDocId', 'INT') = E.ValorDocumentoIdentidad     -- Mapeo de informacion con Empleado
+JOIN TipoMovimiento AS T ON M.movimiento.value('@IdTipoMovimiento', 'VARCHAR(64)') = T.Nombre  -- Mapeo de informacion con TipoMovimiento
+JOIN Usuario AS U ON M.movimiento.value('@PostByUser', 'VARCHAR(64)') = U.Username             -- Mapeo de informacion con Usuario
 
 -- Ingresar la informacion de la seccion Error en la tabla Error
 INSERT INTO Error (Codigo, Descripcion)
@@ -83,12 +91,5 @@ WITH (
 	Descripcion VARCHAR(128)
 )
 
--- Clean up the XML document
+-- Cerrar documento xml
 EXEC sp_xml_removedocument @value
-
-SELECT * FROM Puesto
-SELECT * FROM TipoEvento
-SELECT * FROM TipoMovimiento
-SELECT * FROM Empleado
-SELECT * FROM Usuario
-SELECT * FROM Movimiento
