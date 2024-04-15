@@ -45,8 +45,9 @@
     </div>
 
     <div>
-        <input type="text" placeholder="Parámetro" bind:value={parametroBusqueda}>
-        <button type="submit" on:click={aplicarFiltro}>Buscar</button>
+        <label for="inputBusqueda">Filtrar: </label>
+        <input type="text" placeholder="Parámetro" id="inputBusqueda" bind:value={parametroBusqueda}>
+        <button type="submit" on:click={aplicarFiltro}>Filtrar</button>
     </div>
 
     <div class="lista" id="lista"></div>
@@ -59,7 +60,7 @@
         background-color: #979797;
         font-family: 'Franklin Gothic Medium';
     }
-
+    
     .navbar {
         display: flex;
         background-color: #373737;
