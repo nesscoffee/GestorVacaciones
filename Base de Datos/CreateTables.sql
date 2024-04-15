@@ -4,7 +4,9 @@
 -- Crear las tablas de la base de datos
 
 -- Nota: al final de este script hay un codigo comentado
--- Este, sirve para eliminar las tablas en caso de necesidad
+-- Este sirve para eliminar las tablas en caso de necesidad
+-- Ademas, las FK permiten valores tipo NULL
+-- Esto por los casos en los que un usuario invalido ingresa informacion (login)
 
 USE Vacaciones
 GO
@@ -19,7 +21,7 @@ CREATE TABLE Puesto (
 -- Tabla de empleados:
 CREATE TABLE Empleado (
 	ID INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-	IDPuesto INT NOT NULL,
+	IDPuesto INT,
 	ValorDocumentoIdentidad VARCHAR(64) NOT NULL,
 	Nombre VARCHAR(64) NOT NULL,
 	FechaContratacion DATE NOT NULL,
@@ -45,12 +47,12 @@ CREATE TABLE Usuario (
 -- Tabla de movimientos:
 CREATE TABLE Movimiento (
 	ID INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-	IDEmpleado INT NOT NULL,
-	IDTipoMovimiento INT NOT NULL,
+	IDEmpleado INT,
+	IDTipoMovimiento INT,
 	Fecha DATE NOT NULL,
 	Monto INT NOT NULL,
 	NuevoSaldo MONEY NOT NULL,
-	IDPostByUser INT NOT NULL,
+	IDPostByUser INT,
 	PostInIP VARCHAR(64) NOT NULL,
 	PostTime DATETIME NOT NULL,
 	FOREIGN KEY (IDEmpleado) REFERENCES Empleado(ID),              -- FK a Empleado
@@ -87,9 +89,9 @@ CREATE TABLE DBError (
 -- Tabla de la bitacora de eventos:
 CREATE TABLE BitacoraEvento (
 	ID INT NOT NULL IDENTITY(1,1),
-	IDTipoEvento INT NOT NULL,
-	Descripcion VARCHAR(64),
-	IDPostByUser INT NOT NULL,
+	IDTipoEvento INT,
+	Descripcion VARCHAR(256),
+	IDPostByUser INT,
 	PostInIP VARCHAR(64) NOT NULL,
 	PostTime DATETIME NOT NULL,
 	FOREIGN KEY (IDPostByUser) REFERENCES Usuario(ID),             -- FK a Usuario
