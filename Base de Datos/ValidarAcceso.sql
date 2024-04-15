@@ -52,6 +52,8 @@ BEGIN
 			SET @outResultCode = 50003;                          -- error: login deshabilitado
 			EXEC dbo.IngresarEvento 'Login deshabilitado', NULL, ' ', @outResultCodeEvento OUTPUT;
 		END;
+
+		-- FALTA REVISAR QUE YA SE PUEDE VOLVER A ACTIVAR EL LOGIN
 	
 		-- revisar si el usuario existe en la base de datos, tabla Usuario:
 		IF @outResultCode = 0 AND NOT EXISTS (SELECT 1 FROM dbo.Usuario U WHERE U.Username = @inUsername)
