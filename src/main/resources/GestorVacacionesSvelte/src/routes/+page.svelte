@@ -2,14 +2,6 @@
     let username = '';
     let password = '';
 
-    const handleUsername = (field) => {
-        username = field.target.value;
-    }
-
-    const handlePassword = (field) => {
-        password = field.target.value;
-    }
-
     const LoginFunc = () => {
         if (username.length == 0 || password.length == 0) {
             alert("Aún hay espacios requeridos en blanco.\n * = Campo requerido.")
@@ -20,10 +12,10 @@
 
 <div class="login">
     <h1>Login</h1>
-    <input type="text" placeholder="Nombre de usuario" required id="username" on:input={handleUsername}>
+    <input type="text" placeholder="Nombre de usuario" required bind:value={username}>
     <label for="username" style="color: red;">*</label>
     <br>
-    <input type="password" placeholder="Contraseña" required id="password" on:input={handlePassword}>
+    <input type="password" placeholder="Contraseña" required bind:value={password}>
     <label for="password" style="color: red;">*</label>
     <br>
     <button type="submit" on:click={LoginFunc}>

@@ -4,7 +4,7 @@
     }
 
     $: loadData();
-    
+
     let horaActual = "";
     const updateTime = () => {
         horaActual = new Date().toLocaleTimeString('es-CR');
