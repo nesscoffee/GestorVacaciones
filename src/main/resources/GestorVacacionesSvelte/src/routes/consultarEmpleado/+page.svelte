@@ -4,18 +4,16 @@
     let idEmpleado = $page.url.searchParams.get('empleado');
     let docId = '';
     let nombre = '';
-
-    let borrarEmpleado = () => {
-
-    }
+    let idPuesto = '';
+    let saldoVacaciones = '';
 </script>
 
-<div class="borrarEmpleado">
-    <h1>Menú de borrar empleado</h1>
-    <p>¿Está seguro que desea eliminar este empleado?</p>
+<div class="consultarEmpleado">
+    <h1>Menú de consultar empleado</h1>
     <p>Valor del documento de identidad (cédula): {docId}</p>
     <p>Nombre: {nombre}</p>
-    <button type="submit" on:click={borrarEmpleado}>Confirmar Borrado</button>
+    <p>Puesto: {idPuesto}</p> <!-- Corregir -->
+    <p>Saldo vacaciones: {saldoVacaciones}</p>
     <a href="/listaEmpleados">
         <button>Volver</button>
     </a>
