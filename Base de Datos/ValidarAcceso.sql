@@ -11,13 +11,12 @@
 		-- si el resultado es 0, el codigo corrio sin problemas
 		-- si es otro valor, se puede consultar en la tabla de errores
 
--- Ejemplo de ejecucion
+-- Ejemplo de ejecucion:
 	-- DECLARE @outResultCode INT
 	-- EXECUTE dbo.ValidarAcceso 'usuario', 'password', @outResultCode OUTPUT
 
 -- Notas adicionales:
 -- todas las acciones quedan documentadas en la tabla bitacora de eventos
-
 
 ALTER PROCEDURE dbo.ValidarAcceso
 	@inUsername VARCHAR(64),
@@ -27,27 +26,27 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
-		-- declaracion de variables
-		DECLARE @outResultCodeEvento INT;         -- para insertar eventos en la bitacora
+		-- declaracion de variables:
+		DECLARE @outResultCodeEvento INT;             -- para insertar eventos en la bitacora
 
-		-- inicializacion de variables
+		-- inicializacion de variables:
 		SET @outResultCode = 0;
 	
-		-- revisar si el usuario existe en la base de datos, tabla Usuario
+		-- revisar si el usuario existe en la base de datos, tabla Usuario:
 		IF NOT EXISTS (SELECT 1 FROM dbo.Usuario U WHERE U.Username = @inUsername)
 			BEGIN
 				SET @outResultCode = 50001;           -- error: usuario no existe
 				EXEC dbo.IngresarEvento 'Login No Exitoso', NULL, 'intentos: x, codigo: 50001', @outResultCodeEvento OUTPUT
 			END
 
-		-- revisar que, dado que el usuario existe, la contrasena tambien existe
+		-- revisar que, dado que el usuario existe, la contrasena tambien existe:
 		IF @outResultCode = 0 AND NOT EXISTS (SELECT 1 FROM dbo.Usuario U WHERE U.Password = @inPassword)
 			BEGIN
 				SET @outResultCode = 50002;           -- error: contrasena no existe
 				EXEC dbo.IngresarEvento 'Login No Exitoso', NULL, 'intentos: x, codigo: 50002', @outResultCodeEvento OUTPUT
 			END
 
-		-- revisar que, dado que ambos datos existen, estos coincidan
+		-- revisar que, dado que ambos datos existen, estos coincidan:
 		IF @outResultCode = 0 AND EXISTS (SELECT 1 FROM dbo.Usuario U WHERE U.Username = @inUsername AND U.Password = @inPassword)
 			BEGIN
 				EXEC dbo.IngresarEvento 'Login Exitoso', @inUsername, ' ', @outResultCodeEvento OUTPUT

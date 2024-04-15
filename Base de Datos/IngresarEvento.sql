@@ -12,7 +12,7 @@
 		-- si el codigo es 0, el codigo se ejecuto correctamente
 		-- si es otro valor, se puede consultar en la tabla de errores
 
--- Ejemplo de ejecucion
+-- Ejemplo de ejecucion:
 	-- DECLARE @outResultCode INT
 	-- EXECUTE dbo.IngresarEvento 'nombre evento', 'usuario', 'descripcion', @outResultCode OUTPUT
 
@@ -37,16 +37,16 @@ BEGIN
 		DECLARE @postIP VARCHAR(64);
 		DECLARE @postTime DATETIME;
 
-		-- inicializacion de variables
+		-- inicializacion de variables:
 		SET @outResultCode = 0;
 
-		-- revisar si existe el tipo de evento para obtener su id
+		-- revisar si existe el tipo de evento para obtener su id:
 		IF EXISTS (SELECT 1 FROM TipoEvento TE WHERE TE.Nombre = @inNombreEvento)
 			BEGIN
 				SELECT @IDTipoEvento = ID FROM TipoEvento TE WHERE TE.Nombre = @inNombreEvento;
 			END
 
-		-- revisar si existe el usuario para obtener su id
+		-- revisar si existe el usuario para obtener su id:
 		IF EXISTS (SELECT 1 FROM Usuario U WHERE U.Username = @inUsuario)
 			BEGIN
 				SELECT @IDUsername = ID FROM Usuario U WHERE U.Username = @inUsuario;
@@ -55,7 +55,7 @@ BEGIN
 		SET @postIP = HOST_NAME();            -- cambiar para ingresar IP exacto?
 		SET @postTime = GETDATE();            -- obtiene la fecha y hora del sistema
 
-		-- insertar los valores en la bitacora de eventos
+		-- insertar los valores en la bitacora de eventos:
 		INSERT BitacoraEvento (IDTipoEvento, Descripcion, IDPostByUser, PostInIP, PostTime)
 			VALUES (@IDTipoEvento, @inDescripcion, @IDUsername, @postIP, @postTime)
 
