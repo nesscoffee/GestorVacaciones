@@ -60,7 +60,7 @@
         background-color: #979797;
         font-family: 'Franklin Gothic Medium';
     }
-    
+
     .navbar {
         display: flex;
         background-color: #373737;
@@ -85,7 +85,7 @@
     }
 
     button {
-        background-color: #979797;
+        background-color: #d0d0d0;
         border: none;
         padding: 5px;
         border-radius: 5px;

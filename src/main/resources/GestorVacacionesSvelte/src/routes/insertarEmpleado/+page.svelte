@@ -26,6 +26,9 @@
         <label for="idPuesto" style="color: red;">*</label>
             <br>
         <button type="submit" on:click={insertarEmpleado}>Insertar Empleado</button>
+        <a href="/listaEmpleados">
+            <button>Volver</button>
+        </a>
     </div>
 </div>
 
