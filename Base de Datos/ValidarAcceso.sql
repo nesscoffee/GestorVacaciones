@@ -35,17 +35,18 @@ BEGIN
 		-- inicializacion de variables:
 		SET @outResultCode = 0;
 
-		-- revisar cuantas veces ha intentado entrar el usuario
+		-- revisar cuantas veces ha intentado entrar el usuario:
 		SELECT @intentosLogin = COUNT(*)
-		FROM (SELECT TOP 5 B.[IDTipoEvento], B.[PostTime]
-			  FROM BitacoraEvento B
-			  INNER JOIN TipoEvento T ON B.IDTipoEvento = T.ID
-			  WHERE T.Nombre = 'Login No Exitoso'                -- revisar que el ID corresponda a login no exitoso
-			  AND B.IDPostByUser IS NULL                         -- si login no es exitoso, el id de usuario deberia ser null
-			  AND B.PostTime >= DATEADD(MINUTE, -20, GETDATE())  -- revisar que las entradas hayan sucedido hace 20 min
-			  ORDER BY B.PostTime DESC                           -- ordenar por tiempo la tabla
-			 ) AS Subquery;
+		FROM (
+			SELECT TOP 5 B.[IDTipoEvento], B.[PostTime]          -- seleccionar cinco filas de bitacora
+			FROM BitacoraEvento B
+			ORDER BY B.PostTime DESC                             -- ordenadas por tiempo
+		) AS Subquery
+		-- revisar si fueron logins no existosos en los pasados 20 minutos:
+		WHERE Subquery.IDTipoEvento = (SELECT ID FROM TipoEvento WHERE Nombre = 'Login No Exitoso') 
+		AND Subquery.PostTime >= DATEADD(MINUTE, -20, GETDATE());
 
+		-- revisar si hubieron mas de 5 logins no existosos:
 		IF @intentosLogin >= 5
 		BEGIN
 			SET @outResultCode = 50003;                          -- error: login deshabilitado
