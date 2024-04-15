@@ -44,7 +44,7 @@ BEGIN
 		) AS Subquery
 		-- revisar si fueron logins no existosos en los pasados 20 minutos:
 		WHERE Subquery.IDTipoEvento = (SELECT ID FROM TipoEvento WHERE Nombre = 'Login No Exitoso') 
-		AND Subquery.PostTime >= DATEADD(MINUTE, -20, GETDATE());
+		AND Subquery.PostTime >= DATEADD(MINUTE, -30, GETDATE());
 
 		-- revisar si hubieron mas de 5 logins no existosos:
 		IF @intentosLogin >= 5
