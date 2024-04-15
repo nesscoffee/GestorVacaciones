@@ -25,7 +25,7 @@ CREATE TABLE Empleado (
 	ID INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	IDPuesto INT,
 	ValorDocumentoIdentidad VARCHAR(64) NOT NULL,
-	Nombre VARCHAR(64) NOT NULL,
+	Nombre VARCHAR(64),
 	FechaContratacion DATE NOT NULL,
 	SaldoVacaciones MONEY NOT NULL,
 	EsActivo BIT NOT NULL,
@@ -102,12 +102,12 @@ CREATE TABLE BitacoraEvento (
 
 -- codigo para eliminar las tablas en caso de necesidad
 
--- DROP TABLE BitacoraEvento;
--- DROP TABLE DBError;
--- DROP TABLE Error;
--- DROP TABLE TipoEvento;
--- DROP TABLE Movimiento;
--- DROP TABLE Empleado;
--- DROP TABLE Puesto;
--- DROP TABLE TipoMovimiento;
--- DROP TABLE Usuario;
+ --DROP TABLE BitacoraEvento;
+ --DROP TABLE DBError;
+ --DROP TABLE Error;
+ --DROP TABLE TipoEvento;
+ --DROP TABLE Movimiento;
+ --DROP TABLE Empleado;
+ --DROP TABLE Puesto;
+ --DROP TABLE TipoMovimiento;
+ --DROP TABLE Usuario;
