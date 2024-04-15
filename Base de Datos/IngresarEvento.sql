@@ -6,7 +6,7 @@
 
 -- Descripion de parametros:
 	-- @inNombreEvento: nombre del tipo de evento a guardar
-	-- @inUsuario: username de la persona que realizo la accion
+	-- @inIDUsuario: id del usuario que realizo la accion
 	-- @inDescripcion: string descripcion del evento
 	-- @outResultCode: resultado del insertado en la tabla
 		-- si el codigo es 0, el codigo se ejecuto correctamente
@@ -14,7 +14,7 @@
 
 -- Ejemplo de ejecucion:
 	-- DECLARE @outResultCode INT
-	-- EXECUTE dbo.IngresarEvento 'nombre evento', 'usuario', 'descripcion', @outResultCode OUTPUT
+	-- EXECUTE dbo.IngresarEvento 'nombre evento', 0, 'descripcion', @outResultCode OUTPUT
 
 -- Notas adicionales:
 -- el nombre del evento se utiliza para mapear contra la tabla TipoEvento
@@ -23,7 +23,7 @@
 
 ALTER PROCEDURE dbo.IngresarEvento
 	@inNombreEvento VARCHAR(64),
-	@inUsuario VARCHAR(64),
+	@inIDUsuario INT,
 	@inDescripcion VARCHAR(256),
 	@outResultCode INT OUTPUT
 AS
@@ -33,7 +33,6 @@ BEGIN
 
 		-- declaracion de variables:
 		DECLARE @IDTipoEvento INT = NULL;
-		DECLARE @IDUsername INT = NULL;
 		DECLARE @postIP VARCHAR(64);
 		DECLARE @postTime DATETIME;
 
@@ -46,18 +45,12 @@ BEGIN
 				SELECT @IDTipoEvento = ID FROM TipoEvento TE WHERE TE.Nombre = @inNombreEvento;
 			END
 
-		-- revisar si existe el usuario para obtener su id:
-		IF EXISTS (SELECT 1 FROM Usuario U WHERE U.Username = @inUsuario)
-			BEGIN
-				SELECT @IDUsername = ID FROM Usuario U WHERE U.Username = @inUsuario;
-			END
-
 		SET @postIP = HOST_NAME();            -- cambiar para ingresar IP exacto?
 		SET @postTime = GETDATE();            -- obtiene la fecha y hora del sistema
 
 		-- insertar los valores en la bitacora de eventos:
 		INSERT BitacoraEvento (IDTipoEvento, Descripcion, IDPostByUser, PostInIP, PostTime)
-			VALUES (@IDTipoEvento, @inDescripcion, @IDUsername, @postIP, @postTime)
+			VALUES (@IDTipoEvento, @inDescripcion, @inIDUsuario, @postIP, @postTime)
 
 		SELECT @outResultCode AS outResultCode;
 	END TRY

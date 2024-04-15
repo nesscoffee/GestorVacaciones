@@ -14,7 +14,7 @@
 	-- EXECUTE dbo.ListarEmpleados @outResultCode OUTPUT
 
 -- Notas adicionales:
--- se devuelve tambien la cedula para hacer mas clara la busqueda con filtros
+-- se devuelve tambien el documento de identidad para hacer mas clara la busqueda con filtros
 
 ALTER PROCEDURE dbo.ListarEmpleados
 	@outResultCode INT OUTPUT
@@ -30,7 +30,7 @@ BEGIN
 		SELECT @outResultCode AS outResultCode
 
 		-- generar la tabla:
-		SELECT E.[ValorDocumentoIdentidad], E.[Nombre]
+		SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre]
 		FROM Empleado E
 		ORDER BY E.[Nombre]
 		-- para ordenar ascendentemente segun apellido:

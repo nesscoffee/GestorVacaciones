@@ -28,6 +28,7 @@ BEGIN
 	BEGIN TRY
 		-- declaracion de variables:
 		DECLARE @outResultCodeEvento INT;             -- para insertar eventos en la bitacora
+		DECLARE @inIDUsuario INT;                     -- para insertar eventos en la bitacora
 
 		-- inicializacion de variables:
 		SET @outResultCode = 0;
@@ -49,7 +50,8 @@ BEGIN
 		-- revisar que, dado que ambos datos existen, estos coincidan:
 		IF @outResultCode = 0 AND EXISTS (SELECT 1 FROM dbo.Usuario U WHERE U.Username = @inUsername AND U.Password = @inPassword)
 			BEGIN
-				EXEC dbo.IngresarEvento 'Login Exitoso', @inUsername, ' ', @outResultCodeEvento OUTPUT
+				SELECT @inIDUsuario = ID FROM Usuario U WHERE U.Username = @inUsername
+				EXEC dbo.IngresarEvento 'Login Exitoso', @inIDUsuario, ' ', @outResultCodeEvento OUTPUT
 			END
 
 		SELECT @outResultCode AS outResultCode;
