@@ -54,7 +54,7 @@ BEGIN
 
 	-- buscar el puesto original del empleado:
 	SET @puestoOriginal = (SELECT P.Nombre FROM Empleado E 
-		INNER JOIN Puesto P on E.IDPuesto = P.ID 
+		INNER JOIN Puesto P ON E.IDPuesto = P.ID 
 		WHERE E.Nombre = @inNombreOriginal);
 
 	-- buscar el ID del puesto original:

@@ -32,6 +32,7 @@ BEGIN
 		-- generar la tabla:
 		SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre]
 		FROM Empleado E
+		WHERE E.[EsActivo] = 1
 		ORDER BY E.[Nombre]
 		-- para ordenar ascendentemente segun apellido:
 		-- ORDER BY SUBSTRING(E.[Nombre], CHARINDEX(' ', E.[Nombre]) + 1, LEN(E.[Nombre]) - CHARINDEX(' ', E.[Nombre]));
