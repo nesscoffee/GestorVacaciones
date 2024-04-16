@@ -85,6 +85,21 @@ JOIN Empleado AS E ON M.movimiento.value('@ValorDocId', 'INT') = E.ValorDocument
 JOIN TipoMovimiento AS T ON M.movimiento.value('@IdTipoMovimiento', 'VARCHAR(64)') = T.Nombre  -- mapeo de informacion con TipoMovimiento
 JOIN Usuario AS U ON M.movimiento.value('@PostByUser', 'VARCHAR(64)') = U.Username             -- mapeo de informacion con Usuario
 
+-- actualizar los saldos de vacaciones de acuerdo a los movimientos:
+;WITH MovimientoTotals AS (
+    SELECT IDEmpleado,                                                                         -- por los valores de un usuario
+        SUM(CASE WHEN T.TipoAccion = 'Credito' THEN M.Monto ELSE 0 END) AS TotalCredito,       -- sumar todos los creditos
+        SUM(CASE WHEN T.TipoAccion = 'Debito' THEN M.Monto ELSE 0 END) AS TotalDebito          -- sumar todos los debitos
+    FROM Movimiento M
+    JOIN TipoMovimiento T ON M.IDTipoMovimiento = T.ID                                         -- mapeo de acuerdo con TipoMovimiento
+    GROUP BY IDEmpleado
+)
+UPDATE E
+-- actualizar el saldo sumando creditos y restando debitos:
+SET SaldoVacaciones = E.SaldoVacaciones + ISNULL(MT.TotalCredito, 0) - ISNULL(MT.TotalDebito, 0)
+FROM Empleado E
+LEFT JOIN MovimientoTotals MT ON E.ID = MT.IDEmpleado;
+
 -- ingresar la informacion de la seccion Error en la tabla Error:
 INSERT INTO Error (Codigo, Descripcion)
 SELECT Codigo, Descripcion
