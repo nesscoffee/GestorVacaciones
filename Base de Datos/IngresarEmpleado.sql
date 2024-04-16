@@ -37,7 +37,7 @@ BEGIN
 	DECLARE @IDPuesto INT;
 	DECLARE @IDUsername INT;
 	DECLARE @outResultCodeEvento INT;             -- para insertar eventos en la bitacora
-	DECLARE @descripcionEvento VARCHAR(256);
+	DECLARE @descripcionEvento VARCHAR(512);
 	DECLARE @descripcionError VARCHAR(128);
 
 	-- inicializacion de variables:

@@ -24,7 +24,7 @@
 ALTER PROCEDURE dbo.IngresarEvento
 	@inNombreEvento VARCHAR(64),
 	@inIDUsuario INT,
-	@inDescripcion VARCHAR(256),
+	@inDescripcion VARCHAR(512),
 	@outResultCode INT OUTPUT
 AS
 BEGIN

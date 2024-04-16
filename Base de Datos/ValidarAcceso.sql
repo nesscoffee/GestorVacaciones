@@ -30,7 +30,7 @@ BEGIN
 		DECLARE @outResultCodeEvento INT;                        -- para insertar eventos en la bitacora
 		DECLARE @inIDUsuario INT;                                -- para insertar eventos en la bitacora
 		DECLARE @intentosLogin INT;                              -- para verificar cuantas veces ha intentado ingresar
-		DECLARE @descripcion VARCHAR(128)                        -- para las descripciones de los eventos
+		DECLARE @descripcion VARCHAR(512)                        -- para las descripciones de los eventos
 
 		-- inicializacion de variables:
 		SET @outResultCode = 0;
