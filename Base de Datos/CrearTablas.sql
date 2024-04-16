@@ -92,7 +92,7 @@ CREATE TABLE DBError (
 CREATE TABLE BitacoraEvento (
 	ID INT NOT NULL IDENTITY(1,1),
 	IDTipoEvento INT,
-	Descripcion VARCHAR(256),
+	Descripcion VARCHAR(512),
 	IDPostByUser INT,
 	PostInIP VARCHAR(64) NOT NULL,
 	PostTime DATETIME NOT NULL,
