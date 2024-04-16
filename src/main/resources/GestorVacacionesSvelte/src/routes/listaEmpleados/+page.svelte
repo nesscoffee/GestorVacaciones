@@ -1,6 +1,13 @@
 <script>
-    let loadData = () => {
-        // Fetch data
+    let empleados = [];
+
+    let loadData = async () => {
+        await fetch("http://localhost:8080/api/getListaEmpleados")
+        .then(response => response.json())
+        .then(resData => {
+            empleados = resData;
+        })
+        .catch(e => {console.log(e)});
     }
 
     $: loadData();
@@ -50,7 +57,22 @@
         <button type="submit" on:click={aplicarFiltro}>Filtrar</button>
     </div>
 
-    <div class="lista" id="lista"></div>
+    <div class="lista" id="lista">
+        <table>
+            <tr>
+                <th>Selector</th>
+                <th>Documento Identidad</th>
+                <th>Nombre</th>
+            </tr>
+            {#each empleados as empleado}
+            <tr>
+                <td> <input type="radio" name="selector" id="selector" value={empleado.valorDocumentoIdentidad}> </td>
+                <td>{empleado.valorDocumentoIdentidad}</td>
+                <td>{empleado.nombre}</td>
+            </tr>
+            {/each}
+        </table>
+    </div>
 
 
 </div>
@@ -59,6 +81,13 @@
     :global(body) {
         background-color: #979797;
         font-family: 'Franklin Gothic Medium';
+    }
+
+    table, th, td {
+        margin-top: 15px;
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 10px;
     }
 
     .navbar {

@@ -2,9 +2,33 @@
     let username = '';
     let password = '';
 
-    const LoginFunc = () => {
+    const LoginFunc = async () => {
         if (username.length == 0 || password.length == 0) {
             alert("Aún hay espacios requeridos en blanco.\n * = Campo requerido.")
+        } else {
+            await fetch('http://localhost:8080/api/iniciarSesion', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then( res => { res.json().then( r => {
+                switch (r) {
+                    case 50001:
+                        alert("El username introducido no existe en la base de datos.\nRevise que esté bien escrito.");
+                        break;
+                    case 50002:
+                        alert("Contraseña incorrecta.\nSe bloqueará por 30 minutos si introduce más contraseñas incorrectas.");
+                        break;
+                    case 50003:
+                        alert("Página bloqueada por seguridad.\nInténtelo de nuevo en 30 minutos.");
+                        break;
+                    case 0:
+                        window.location.href = "http://localhost:8080/listaEmpleados";
+                        break;
+                }
+            }) } )
         }
     }
 

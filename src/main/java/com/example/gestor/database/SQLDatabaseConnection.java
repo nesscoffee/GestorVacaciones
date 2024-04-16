@@ -7,8 +7,11 @@ package com.example.gestor.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.CallableStatement;
 
 public class SQLDatabaseConnection {
@@ -68,6 +71,49 @@ public class SQLDatabaseConnection {
 			}
 		}
 		return resultCode;
+	}
+	
+	//Fetch lista empleados
+	public ArrayList<Empleado> listaEmpleados() {
+		ArrayList<Empleado> listaEmpleados = new ArrayList<>();
+		
+		try {
+			connection = DriverManager.getConnection(connectionUrl);
+			
+			String storedProcedureQuery = "{CALL dbo.ListarEmpleados(?)}";
+			callableStatement = connection.prepareCall(storedProcedureQuery);
+			
+			callableStatement.registerOutParameter(1, Types.INTEGER);
+			
+			callableStatement.execute();
+			callableStatement.getMoreResults();
+			ResultSet resultSet = callableStatement.getResultSet();
+			
+			while (resultSet.next()) {
+				
+				String docId = resultSet.getString(1);
+				String nombre = resultSet.getString(2);
+			
+				listaEmpleados.add( new Empleado(docId, nombre, 0) );
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+                if (callableStatement != null) {
+                    callableStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception e) {
+            	System.out.println(e);
+            }
+		}
+		
+		
+		return listaEmpleados;
 	}
 	
 }
