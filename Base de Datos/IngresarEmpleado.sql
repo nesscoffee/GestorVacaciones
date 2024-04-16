@@ -47,13 +47,13 @@ BEGIN
 	-- buscar el ID del puesto con base en el nombre:
 	SELECT @IDPuesto = ID FROM Puesto P WHERE P.Nombre = @inPuesto;
 
-	-- revisar que los datos para cedula y nombre sean validos
+	-- validacion de datos:
 	-- nombre no contiene solo letras o espacios en blanco:
 	IF (PATINDEX('%[^a-zA-Z ]%', @inNombre) != 0 OR LEN(@inNombre) <= 0)
 	BEGIN
 		SET @outResultCode = 50009;
 		SELECT @descripcionError = Descripcion FROM Error E WHERE E.Codigo = @outResultCode;
-		SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ' cedula: ', @inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
+		SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ', @inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
 		EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 	END
 
@@ -62,17 +62,17 @@ BEGIN
 	BEGIN
 		SET @outResultCode = 50010;
 		SELECT @descripcionError = Descripcion FROM Error E WHERE E.Codigo = @outResultCode;
-		SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ' cedula: ', @inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
+		SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ', @inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
 		EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 	END
 
-	-- revisar por duplicados:
+	-- revision de duplicados:
 	-- existe algun empleado con el mismo nombre:
 	IF @outResultCode = 0 AND EXISTS (SELECT 1 FROM Empleado E WHERE E.Nombre = @inNombre)
 	BEGIN
 		SET @outResultCode = 50005;
 		SELECT @descripcionError = Descripcion FROM Error E WHERE E.Codigo = @outResultCode;
-		SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ' cedula: ', @inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
+		SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ', @inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
 		EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 	END
 
@@ -81,11 +81,12 @@ BEGIN
 	BEGIN
 		SET @outResultCode = 50004;
 		SELECT @descripcionError = Descripcion FROM Error E WHERE E.Codigo = @outResultCode;
-		SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ' cedula: ', @inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
+		SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ', @inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
 		EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, ' ', @outResultCodeEvento OUTPUT;
 	END
 
-	-- no hay duplicados del empleado
+	-- insercion del empleado:
+	-- (en caso de que no existan duplicados)
 	IF @outResultCode = 0
 	BEGIN
 		INSERT Empleado (IDPuesto, ValorDocumentoIdentidad, Nombre, FechaContratacion, SaldoVacaciones, EsActivo)
