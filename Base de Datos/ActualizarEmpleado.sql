@@ -2,7 +2,7 @@
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Actualizar un empleado existente
+-- Actualiza un empleado existente
 
 -- Descripion de parametros:
 	-- @inCedulaOriginal: valor del documento de identidad del empleado antes de la actualizacion 

@@ -2,7 +2,7 @@
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Genera una lista de los empleados ordenados por nombre ascendente
+-- Borra un empleado de la base (borrado logico)
 
 -- Descripion de parametros:
 	-- @inCedula: valor del documento de identificacion del empleado que se desea borrar
