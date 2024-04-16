@@ -31,6 +31,7 @@ BEGIN
 		-- declaracion de variables:
 		DECLARE @outResultCodeEvento INT;             -- para insertar eventos en la bitacora
 		DECLARE @IDUsername INT;
+		DECLARE @filtro VARCHAR(64);
 
 		-- inicializacion de variables:
 		SET @outResultCode = -1;
@@ -44,7 +45,8 @@ BEGIN
 			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre]
 			FROM Empleado E WHERE E.[Nombre] LIKE '%' + @inFiltro + '%'
 			ORDER BY E.[Nombre]
-			EXEC dbo.IngresarEvento 'Consulta con filtro de nombre', @IDUsername, @inFiltro, @outResultCodeEvento OUTPUT
+			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
+			EXEC dbo.IngresarEvento 'Consulta con filtro de nombre', @IDUsername, @filtro, @outResultCodeEvento OUTPUT
 		END
 
 		-- el filtro contiene solo numeros:
@@ -54,7 +56,8 @@ BEGIN
 			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre]
 			FROM Empleado E WHERE E.[ValorDocumentoIdentidad] LIKE '%' + @inFiltro + '%'
 			ORDER BY E.[Nombre]
-			EXEC dbo.IngresarEvento 'Consulta con filtro de cedula', @IDUsername, @inFiltro, @outResultCodeEvento OUTPUT
+			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
+			EXEC dbo.IngresarEvento 'Consulta con filtro de cedula', @IDUsername, @filtro, @outResultCodeEvento OUTPUT
 		END
 
 		-- el filtro contiene solo espacios en blanco:
