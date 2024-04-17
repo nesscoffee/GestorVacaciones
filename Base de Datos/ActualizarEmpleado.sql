@@ -65,7 +65,8 @@ BEGIN
 
 	-- validacion de datos:
 	-- nombre nuevo no contiene solo letras o espacios en blanco:
-	IF (PATINDEX('%[^a-zA-Z ]%', @inNombreNuevo) != 0 AND LEN(@inNombreNuevo) > 0)
+	IF PATINDEX('%[^a-zA-Z ]%', @inNombreNuevo) != 0 
+		AND LEN(@inNombreNuevo) > 0
 	BEGIN
 		SET @outResultCode = 50009;
 		SELECT @descripcionError = Descripcion FROM Error E WHERE E.Codigo = @outResultCode;
@@ -76,7 +77,8 @@ BEGIN
 	END
 
 	-- cedula nueva no contiene solo numeros:
-	IF LEN(@inCedulaNueva) > 0 AND ISNUMERIC(@inCedulaNueva) != 1
+	IF LEN(@inCedulaNueva) > 0
+		AND ISNUMERIC(@inCedulaNueva) != 1
 	BEGIN
 		SET @outResultCode = 50010;
 		SELECT @descripcionError = Descripcion FROM Error E WHERE E.Codigo = @outResultCode;
@@ -88,7 +90,8 @@ BEGIN
 
 	-- revision de duplicados:
 	-- existe algun empledo con el mismo nombre con el que se quiere actualizar:
-	IF @outResultCode = 0 AND (@inNombreNuevo != @inNombreOriginal AND LEN(@inNombreNuevo) != 0)
+	IF @outResultCode = 0 
+		AND (@inNombreNuevo != @inNombreOriginal AND LEN(@inNombreNuevo) != 0)
 	BEGIN
 		IF EXISTS (SELECT 1 FROM Empleado E WHERE E.Nombre = @inNombreNuevo)
 		BEGIN
@@ -102,7 +105,8 @@ BEGIN
 	END
 
 	-- existe algun empleado con la misma cedula con la que se quiere actualizar:
-	IF @outResultCode = 0 AND (@inCedulaNueva != @inCedulaOriginal OR LEN(@inCedulaNueva) != 0)
+	IF @outResultCode = 0 
+		AND (@inCedulaNueva != @inCedulaOriginal OR LEN(@inCedulaNueva) != 0)
 	BEGIN
 		IF EXISTS (SELECT 1 FROM Empleado E WHERE E.ValorDocumentoIdentidad = @inCedulaNueva)
 		BEGIN
@@ -130,7 +134,9 @@ BEGIN
 		END
 		UPDATE Empleado
 		SET Nombre = @inNombreNuevo, ValorDocumentoIdentidad = @inCedulaNueva, IDPuesto = @IDPuestoNuevo
-		WHERE Nombre = @inNombreOriginal AND ValorDocumentoIdentidad = @inCedulaOriginal AND IDPuesto = @IDPuestoOriginal;
+		WHERE Nombre = @inNombreOriginal 
+			AND ValorDocumentoIdentidad = @inCedulaOriginal 
+			AND IDPuesto = @IDPuestoOriginal;
 		SET @descripcionEvento = (SELECT CONCAT('cedula original: ', @inCedulaOriginal, ', nombre original: '
 			, @inNombreOriginal, ', puesto original: ', @puestoOriginal, ', cedula nueva: ', @inCedulaNueva,
 			', nombre nuevo: ', @inNombreNuevo, ', puesto nuevo: ', @inPuestoNuevo));
