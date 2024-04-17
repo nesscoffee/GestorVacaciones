@@ -25,8 +25,16 @@ BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
+		-- declaracion de variables:
+		DECLARE @IDUsername INT;
+		DECLARE @outResultCodeEvento INT;             -- para insertar eventos en la bitacora
+		DECLARE @descripcionEvento VARCHAR(512);
+		DECLARE @nombre VARCHAR(64);
+
 		-- inicializacion de variables:
 		SET @outResultCode = 0
+		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
+		SELECT @nombre = Nombre FROM Empleado E WHERE E.ValorDocumentoIdentidad = @inCedula;
 
 		-- valor de retorno en forma de tabla:
 		SELECT @outResultCode AS outResultCode
@@ -46,6 +54,10 @@ BEGIN
         INNER JOIN Empleado E ON M.[IDEmpleado] = E.[ID]
         WHERE E.[ValorDocumentoIdentidad] = @inCedula
         ORDER BY M.[Fecha] DESC;
+
+		-- guardar el evento en la bitacora:
+		SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @nombre));
+		EXEC dbo.IngresarEvento 'Consulta de movimientos de empleado', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 
 	END TRY
 
