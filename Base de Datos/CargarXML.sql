@@ -95,7 +95,7 @@ JOIN Usuario AS U ON M.movimiento.value('@PostByUser', 'VARCHAR(64)') = U.Userna
     GROUP BY IDEmpleado
 )
 UPDATE E
--- actualizar el saldo sumando creditos y restando debitos:
+    -- actualizar el saldo sumando creditos y restando debitos:
 SET SaldoVacaciones = E.SaldoVacaciones + ISNULL(MT.TotalCredito, 0) - ISNULL(MT.TotalDebito, 0)
 FROM Empleado E
 LEFT JOIN MovimientoTotals MT ON E.ID = MT.IDEmpleado;
