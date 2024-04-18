@@ -26,7 +26,11 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
+
 		-- declaracion de variables:
+		DECLARE @ultimoPostTime DATETIME;
+		DECLARE @IDUltimaEntrada VARCHAR(64);
+		DECLARE @ultimaEntrada VARCHAR(64);
 		DECLARE @outResultCodeEvento INT;                        -- para insertar eventos en la bitacora
 		DECLARE @inIDUsuario INT;                                -- para insertar eventos en la bitacora
 		DECLARE @intentosLogin INT;                              -- para verificar cuantas veces ha intentado ingresar
@@ -34,26 +38,43 @@ BEGIN
 
 		-- inicializacion de variables:
 		SET @outResultCode = 0;
+		SET @ultimoPostTime = (SELECT TOP 1 B.[PostTime] FROM BitacoraEvento B ORDER BY B.[PostTime] DESC);
+		SET @IDUltimaEntrada = (SELECT TOP 1 B.[IDTipoEvento] FROM BitacoraEvento B ORDER BY B.[PostTime] DESC);
+		SELECT @ultimaEntrada = T.[Nombre] FROM TipoEvento T WHERE T.ID = @IDUltimaEntrada;
 
 		-- revisar cuantas veces ha intentado entrar el usuario:
 		SELECT @intentosLogin = COUNT(*)
 		FROM (
-			SELECT TOP 5 B.[IDTipoEvento], B.[PostTime]          -- seleccionar cinco filas de bitacora
+			SELECT B.[IDTipoEvento], B.[PostTime], ROW_NUMBER() OVER (ORDER BY B.[PostTime] DESC) AS RowNumber
 			FROM BitacoraEvento B
-			ORDER BY B.PostTime DESC                             -- ordenadas por tiempo
 		) AS Subquery
+
 		-- revisar si fueron logins no existosos en los pasados 20 minutos:
 		WHERE Subquery.IDTipoEvento = (SELECT ID FROM TipoEvento WHERE Nombre = 'Login No Exitoso') 
-		AND Subquery.PostTime >= DATEADD(MINUTE, -30, GETDATE());
+			AND Subquery.PostTime >= DATEADD(MINUTE, -30, GETDATE())
+			AND NOT EXISTS (
+				SELECT 1
+				FROM BitacoraEvento B
+				WHERE B.[IDTipoEvento] = (SELECT ID FROM TipoEvento WHERE Nombre = 'Logout')
+				AND B.[ID] > Subquery.RowNumber
+			);
+
+		-- revisar si, en caso de estar deshabilitado, ya se puede volver a hacer login:
+		IF DATEDIFF(MINUTE, @ultimoPostTime, GETDATE()) < 5 AND @ultimaEntrada = 'Login deshabilitado'
+		BEGIN
+			PRINT 'ultimo post: ' + CAST(@ultimoPostTime AS VARCHAR(64))
+			PRINT 'ultima entrada: '  + @ultimaEntrada
+			SET @outResultCode = 50003;                          -- error: login deshabilitado
+			EXEC dbo.IngresarEvento 'Login deshabilitado', NULL, ' ', @outResultCodeEvento OUTPUT;
+		END;
 
 		-- revisar si hubieron mas de 5 logins no existosos:
-		IF @intentosLogin >= 5
+		IF @outResultCode = 0 AND @intentosLogin >= 5
 		BEGIN
 			SET @outResultCode = 50003;                          -- error: login deshabilitado
 			EXEC dbo.IngresarEvento 'Login deshabilitado', NULL, ' ', @outResultCodeEvento OUTPUT;
 		END;
 
-		-- FALTA REVISAR QUE YA SE PUEDE VOLVER A ACTIVAR EL LOGIN
 	
 		-- revisar si el usuario existe en la base de datos, tabla Usuario:
 		IF @outResultCode = 0 AND NOT EXISTS (SELECT 1 FROM dbo.Usuario U WHERE U.Username = @inUsername)
