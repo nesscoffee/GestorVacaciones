@@ -8,10 +8,12 @@
 -- el archivo se tiene de forma local en una de las computadoras
 -- se lee y se mapea la informacion hacia las tablas correspondientes
 
--- declaracion de variable para almacenar el xml:
+-- DECLARAR DE VARIABLES:
 DECLARE @xmlData XML
 
--- carga del xml en la variable creada:
+-- --------------------------------------------------------------- --
+
+-- INICIALIZAR VARIABLES:
 SELECT @xmlData = X
 FROM OPENROWSET (BULK 'C:\Users\Stephanie\Documents\SQL Server Management Studio\datos.xml', SINGLE_BLOB) AS xmlfile(X)
 
@@ -19,6 +21,9 @@ FROM OPENROWSET (BULK 'C:\Users\Stephanie\Documents\SQL Server Management Studio
 DECLARE @value int
 EXEC sp_xml_preparedocument @value OUTPUT, @xmlData
 
+-- --------------------------------------------------------------- --
+
+-- CARGAR DATOS:
 -- ingresar informacion de la seccion Puestos en la tabla Puesto:
 INSERT INTO Puesto (Nombre, SalarioxHora)
 SELECT Nombre, SalarioxHora
@@ -80,10 +85,10 @@ CREATE TABLE #MovimientoData (
     inTime DATETIME
 );
 
--- Insert the Movimiento data from XML into the temporary table
+-- ingresar informacion de la seccion de Movimientos en la tabla Movimiento:
+-- crear tabla temporal para registrar los datos originales:
 INSERT INTO #MovimientoData (inCedula, inNombreMovimiento, inFecha, inMonto, inUsername, inIP, inTime)
-SELECT
-    M.movimiento.value('@ValorDocId', 'VARCHAR(64)'),
+SELECT M.movimiento.value('@ValorDocId', 'VARCHAR(64)'),
     M.movimiento.value('@IdTipoMovimiento', 'VARCHAR(64)'),
     M.movimiento.value('@Fecha', 'DATE'),
     M.movimiento.value('@Monto', 'MONEY'),
@@ -93,7 +98,7 @@ SELECT
 FROM @xmlData.nodes('/Datos/Movimientos/movimiento') AS M(movimiento)
 ORDER BY M.movimiento.value('@PostTime', 'DATETIME');
 
--- Call the stored procedure for each row in the temporary table
+-- llamar al sp encargado de agregar un movimiento nuevo (se encarga de mapear correctamente)
 DECLARE @outResultCode INT;
 DECLARE @rowCount INT = (SELECT COUNT(*) FROM #MovimientoData);
 DECLARE @index INT = 1;
@@ -108,9 +113,7 @@ BEGIN
     DECLARE @inIP VARCHAR(64);
     DECLARE @inTime DATETIME;
 
-    -- Retrieve the values for the current row
-    SELECT TOP 1
-        @inCedula = inCedula,
+    SELECT TOP 1 @inCedula = inCedula,
         @inNombreMovimiento = inNombreMovimiento,
         @inFecha = inFecha,
         @inMonto = inMonto,
@@ -120,13 +123,13 @@ BEGIN
     FROM #MovimientoData
     WHERE ID = @index;
 
-    -- Call the stored procedure
-    EXEC dbo.IngresarMovimientoXML @inCedula, @inNombreMovimiento, @inFecha, @inMonto, @inUsername, @inIP, @inTime, @outResultCode OUTPUT;
+    EXEC dbo.IngresarMovimientoXML @inCedula, @inNombreMovimiento, @inFecha, 
+        @inMonto, @inUsername, @inIP, @inTime, @outResultCode OUTPUT;
 
     SET @index = @index + 1;
 END;
 
--- Drop the temporary table
+-- eliminar la tabla temporal:
 DROP TABLE #MovimientoData;
 
 -- ingresar la informacion de la seccion Error en la tabla Error:
@@ -138,5 +141,7 @@ WITH (
 	Descripcion VARCHAR(128)
 )
 
--- cerrar documento xml:
+-- --------------------------------------------------------------- --
+
+-- FINALIZAR CARGA:
 EXEC sp_xml_removedocument @value

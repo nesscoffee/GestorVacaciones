@@ -30,7 +30,8 @@ BEGIN
 		SELECT @outResultCode AS outResultCode
 
 		-- generar la tabla:
-		SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre]
+		SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', 
+			E.[Nombre]
 		FROM Empleado E
 		WHERE E.[EsActivo] = 1
 		ORDER BY E.[Nombre]

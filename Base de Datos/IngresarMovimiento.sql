@@ -44,15 +44,29 @@ BEGIN
 		DECLARE @tipoMovimiento VARCHAR(16);
 
 		-- inicializacion de variables:
-		SELECT @IDEmpleado = E.ID FROM Empleado E WHERE E.ValorDocumentoIdentidad = @inCedula;
-		SELECT @IDTipoMovimiento = T.ID FROM TipoMovimiento T WHERE T.Nombre = @inNombreMovimiento;
+		SELECT @IDEmpleado = E.ID 
+			FROM Empleado E 
+			WHERE E.ValorDocumentoIdentidad = @inCedula;
+
+		SELECT @IDTipoMovimiento = T.ID
+			FROM TipoMovimiento T
+			WHERE T.Nombre = @inNombreMovimiento;
+
 		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
 
 		SET @outResultCode = 0;
 
-		SELECT @nombre = E.Nombre FROM Empleado E WHERE E.ValorDocumentoIdentidad = @inCedula;
-		SELECT @saldo = E.SaldoVacaciones FROM Empleado E WHERE E.ValorDocumentoIdentidad = @inCedula;
-		SELECT @tipoMovimiento = T.TipoAccion FROM TipoMovimiento T WHERE T.Nombre = @inNombreMovimiento;
+		SELECT @nombre = E.Nombre 
+			FROM Empleado E 
+			WHERE E.ValorDocumentoIdentidad = @inCedula;
+
+		SELECT @saldo = E.SaldoVacaciones 
+			FROM Empleado E 
+			WHERE E.ValorDocumentoIdentidad = @inCedula;
+
+		SELECT @tipoMovimiento = T.TipoAccion
+			FROM TipoMovimiento T
+			WHERE T.Nombre = @inNombreMovimiento;
 
 		-- validacion de datos:
 		-- monto no deberia ser negativo
@@ -64,17 +78,23 @@ BEGIN
 
 		-- calculo del nuevo monto:
 		SET @saldo = CASE
-			WHEN @tipoMovimiento = 'Credito' THEN @saldo + @inMonto
-			WHEN @tipoMovimiento = 'Debito' THEN @saldo - @inMonto
+			WHEN @tipoMovimiento = 'Credito' 
+				THEN @saldo + @inMonto
+			WHEN @tipoMovimiento = 'Debito' 
+				THEN @saldo - @inMonto
 			END;
 
 		-- validacion de que el monto no sea "muy" negativo:
 		IF @outResultCode = 0 AND @saldo <= -30
 		BEGIN
 			SET @outResultCode = 50011;
-			SELECT @descripcionError = Descripcion FROM Error E WHERE E.Codigo = @outResultCode;
+			SELECT @descripcionError = Descripcion 
+				FROM Error E 
+				WHERE E.Codigo = @outResultCode;
+
 			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ', @inCedula, ', nombre: ',
 				@nombre, ', saldo: ', @saldo - @inMonto, ', movimiento: ', @inNombreMovimiento, ', monto: ', @inMonto));
+
 			EXEC dbo.IngresarEvento 'Intento de insertar movimiento', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
@@ -84,10 +104,13 @@ BEGIN
 			UPDATE Empleado
 			SET SaldoVacaciones = @saldo
 			WHERE ValorDocumentoIdentidad = @inCedula;
+
 			INSERT Movimiento (IDEmpleado, IDTipoMovimiento, Fecha, Monto, NuevoSaldo, IDPostByUser, PostInIP, PostTime)
 			VALUES (@IDEmpleado, @IDTipoMovimiento, CAST(GETDATE() AS DATE), @inMonto, @saldo, @IDUsername, HOST_NAME(), GETDATE())
+
 			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @nombre, ', saldo: '
 				, @saldo - @inMonto, ', movimiento: ', @inNombreMovimiento, ', monto: ', @inMonto));
+				
 			EXEC dbo.IngresarEvento 'Insertar movimiento exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 

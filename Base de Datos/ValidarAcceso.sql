@@ -38,9 +38,14 @@ BEGIN
 
 		-- inicializacion de variables:
 		SET @outResultCode = 0;
+
 		SET @ultimoPostTime = (SELECT TOP 1 B.[PostTime] FROM BitacoraEvento B ORDER BY B.[PostTime] DESC);
+
 		SET @IDUltimaEntrada = (SELECT TOP 1 B.[IDTipoEvento] FROM BitacoraEvento B ORDER BY B.[PostTime] DESC);
-		SELECT @ultimaEntrada = T.[Nombre] FROM TipoEvento T WHERE T.ID = @IDUltimaEntrada;
+
+		SELECT @ultimaEntrada = T.[Nombre]
+			FROM TipoEvento T
+			WHERE T.ID = @IDUltimaEntrada;
 
 		-- revisar cuantas veces ha intentado entrar el usuario:
 		SELECT @intentosLogin = COUNT(*)
@@ -62,8 +67,6 @@ BEGIN
 		-- revisar si, en caso de estar deshabilitado, ya se puede volver a hacer login:
 		IF DATEDIFF(MINUTE, @ultimoPostTime, GETDATE()) < 5 AND @ultimaEntrada = 'Login deshabilitado'
 		BEGIN
-			PRINT 'ultimo post: ' + CAST(@ultimoPostTime AS VARCHAR(64))
-			PRINT 'ultima entrada: '  + @ultimaEntrada
 			SET @outResultCode = 50003;                          -- error: login deshabilitado
 			EXEC dbo.IngresarEvento 'Login deshabilitado', NULL, ' ', @outResultCodeEvento OUTPUT;
 		END;
@@ -93,7 +96,8 @@ BEGIN
 		END;
 
 		-- revisar que, dado que ambos datos existen, estos coincidan:
-		IF @outResultCode = 0 AND EXISTS (SELECT 1 FROM dbo.Usuario U WHERE U.Username = @inUsername AND U.Password = @inPassword)
+		IF @outResultCode = 0 AND EXISTS (SELECT 1 FROM dbo.Usuario U 
+			WHERE U.Username = @inUsername AND U.Password = @inPassword)
 		BEGIN
 			SELECT @inIDUsuario = ID FROM Usuario U WHERE U.Username = @inUsername;
 			EXEC dbo.IngresarEvento 'Login Exitoso', @inIDUsuario, ' ', @outResultCodeEvento OUTPUT;

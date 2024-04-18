@@ -42,23 +42,39 @@ BEGIN
 		-- inicializacion de variables:
 		SET @outResultCode = 0;
 
-		SELECT @IDEmpleado = E.ID FROM Empleado E WHERE E.ValorDocumentoIdentidad = @inCedula;
-		SELECT @IDTipoMovimiento = T.ID FROM TipoMovimiento T WHERE T.Nombre = @inNombreMovimiento;
-		SELECT @IDUsuario = U.ID FROM Usuario U WHERE U.Username = @inUsername;
+		SELECT @IDEmpleado = E.ID 
+			FROM Empleado E
+			WHERE E.ValorDocumentoIdentidad = @inCedula;
 
-		SELECT @saldo = E.SaldoVacaciones FROM Empleado E WHERE E.ValorDocumentoIdentidad = @inCedula;
-		SELECT @tipoMovimiento = T.TipoAccion FROM TipoMovimiento T WHERE T.Nombre = @inNombreMovimiento;
+		SELECT @IDTipoMovimiento = T.ID
+			FROM TipoMovimiento T
+			WHERE T.Nombre = @inNombreMovimiento;
+
+		SELECT @IDUsuario = U.ID
+			FROM Usuario U
+			WHERE U.Username = @inUsername;
+
+		SELECT @saldo = E.SaldoVacaciones
+			FROM Empleado E
+			WHERE E.ValorDocumentoIdentidad = @inCedula;
+
+		SELECT @tipoMovimiento = T.TipoAccion
+			FROM TipoMovimiento T
+			WHERE T.Nombre = @inNombreMovimiento;
 
 		SET @saldo = CASE
-			WHEN @tipoMovimiento = 'Credito' THEN @saldo + @inMonto
-			WHEN @tipoMovimiento = 'Debito' THEN @saldo - @inMonto
+			WHEN @tipoMovimiento = 'Credito' 
+				THEN @saldo + @inMonto
+			WHEN @tipoMovimiento = 'Debito'
+				THEN @saldo - @inMonto
 			END;
 
 		UPDATE Empleado
 			SET SaldoVacaciones = @saldo
 			WHERE ValorDocumentoIdentidad = @inCedula;
-			INSERT Movimiento (IDEmpleado, IDTipoMovimiento, Fecha, Monto, NuevoSaldo, IDPostByUser, PostInIP, PostTime)
-			VALUES (@IDEmpleado, @IDTipoMovimiento, @inFecha, @inMonto, @saldo, @IDUsuario, @inIP, @inTime)
+
+		INSERT Movimiento (IDEmpleado, IDTipoMovimiento, Fecha, Monto, NuevoSaldo, IDPostByUser, PostInIP, PostTime)
+		VALUES (@IDEmpleado, @IDTipoMovimiento, @inFecha, @inMonto, @saldo, @IDUsuario, @inIP, @inTime)
 
 		SELECT @outResultCode AS outResultCode;
 	END TRY
@@ -75,7 +91,7 @@ BEGIN
 			GETDATE()
 		);
 
-		SET @outResultCode = 50008;           -- error: problema base de datos
+		SET @outResultCode = 50008;
 
 	END CATCH;
 	SET NOCOUNT OFF;

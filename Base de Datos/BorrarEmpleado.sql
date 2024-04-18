@@ -6,7 +6,6 @@
 
 -- Descripion de parametros:
 	-- @inCedula: valor del documento de identificacion del empleado que se desea borrar
-	-- @inNombre: nombre del empleado que se desea borrar
 	-- @inConfirmado: 'booleano' indicando si el usuario confirmo el borrado
 	-- @outResultCode: resultado del insertado en la tabla
 		-- si el codigo es 0, el codigo se ejecuto correctamente
@@ -21,9 +20,8 @@
 -- por tanto, no hace falta hacer validacion de esta, se sabe que ya es correcta
 -- todas las acciones quedan documentadas en la tabla bitacora de eventos
 
-CREATE PROCEDURE dbo.BorrarEmpleado
+ALTER PROCEDURE dbo.BorrarEmpleado
 	@inCedula INT,
-	@inNombre VARCHAR(64),
 	@inConfirmado BIT,
 	@outResultCode INT OUTPUT
 AS
@@ -31,39 +29,64 @@ BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
-		-- declaracion de variables:
+		-- DECLARAR VARIABLES:
+		DECLARE @nombre VARCHAR(64);
 		DECLARE @puesto VARCHAR(64);
 		DECLARE @saldo MONEY;
 		DECLARE @IDUsername INT;
 		DECLARE @outResultCodeEvento INT;
 		DECLARE @descripcionEvento VARCHAR(512);
 
-		-- inicializacion de variables:
-		SET @outResultCode = 0;
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
-		
-		SET @puesto = (SELECT P.Nombre FROM Empleado E
-			INNER JOIN Puesto P ON E.IDPuesto = P.ID
-			WHERE E.Nombre = @inNombre);
+		-- --------------------------------------------------------------- --
 
-		SELECT @saldo = SaldoVacaciones FROM Empleado E WHERE E.Nombre = @inNombre;
+		-- INICIALIZAR VARIABLES:
+		SET @outResultCode = 0;
+
+		-- buscar el id usuario que esta activo:
+		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
+
+		-- buscar el nombre del empleado que se desea borrar:
+		SELECT @nombre = E.Nombre 
+			FROM Empleado E 
+			WHERE E.ValorDocumentoIdentidad = @inCedula;
 		
-		-- borrar el empleado (borrado logico):
+		-- buscar el puesto del empleado que se desea borrar:
+		SET @puesto = (SELECT P.Nombre 
+			FROM Empleado E
+			INNER JOIN Puesto P ON E.IDPuesto = P.ID
+			WHERE E.Nombre = @nombre);
+
+		-- buscar el saldo de vacaciones actual del empleado:
+		SELECT @saldo = SaldoVacaciones 
+			FROM Empleado E 
+			WHERE E.Nombre = @nombre;
+
+		-- --------------------------------------------------------------- --
+		
+		-- BORRAR EMPLEADO:
+		-- cuando el borrado se confirma:
 		IF @inConfirmado = 1
 		BEGIN
 			UPDATE Empleado
-			SET EsActivo = 0 WHERE ValorDocumentoIdentidad = @inCedula;
-			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @inNombre, 
+			SET EsActivo = 0 
+				WHERE ValorDocumentoIdentidad = @inCedula;
+
+			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @nombre, 
 			', puesto: ', @puesto, ', saldo vacaciones: ', @saldo));
+
 			EXEC dbo.IngresarEvento 'Borrado exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END
 			
+		-- cuando el borrado no se confirma:
 		ELSE
 		BEGIN
-			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @inNombre, 
+			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @nombre, 
 			', puesto: ', @puesto, ', saldo vacaciones: ', @saldo));
+
 			EXEC dbo.IngresarEvento 'Intento de borrado', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END
+
+		-- --------------------------------------------------------------- --
 
 		SELECT @outResultCode AS outResultCode;
 	END TRY
@@ -80,7 +103,7 @@ BEGIN
 			GETDATE()
 		);
 
-		SET @outResultCode = 50008;           -- error: problema base de datos
+		SET @outResultCode = 50008;
 
 	END CATCH;
 	SET NOCOUNT OFF;

@@ -28,25 +28,35 @@ BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
-		-- declaracion de variables:
-		DECLARE @outResultCodeEvento INT;             -- para insertar eventos en la bitacora
+		-- DECLARAR VARIABLES:
+		DECLARE @outResultCodeEvento INT;
 		DECLARE @IDUsername INT;
 		DECLARE @filtro VARCHAR(64);
 
-		-- inicializacion de variables:
+		-- --------------------------------------------------------------- --
+
+		-- INICIALIZAR VARIABLES:
 		SET @outResultCode = -1;
+
+		-- buscar el id usuario que esta activo:
 		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
 
-		-- identificar cual filtro se debe aplicar:
+		-- --------------------------------------------------------------- --
+	
+		-- IDENTIFICAR EL FILTRO QUE SE DEBE APLICAR:
 		-- el filtro contiene solo letras:
 		IF PATINDEX('%[^A-Za-z]%', @inFiltro) = 0
 		BEGIN
 			SET @outResultCode = 0;
-			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre]
-			FROM Empleado E WHERE E.[Nombre] LIKE '%' + @inFiltro + '%'
+			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', 
+				E.[Nombre]
+			FROM Empleado E 
+				WHERE E.[Nombre] LIKE '%' + @inFiltro + '%'
 				AND E.[EsActivo] = 1
 			ORDER BY E.[Nombre]
+
 			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
+
 			EXEC dbo.IngresarEvento 'Consulta con filtro de nombre', @IDUsername, @filtro, @outResultCodeEvento OUTPUT
 		END
 
@@ -54,11 +64,15 @@ BEGIN
 		IF ISNUMERIC(@inFiltro) = 1
 		BEGIN
 			SET @outResultCode = 0;
-			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre]
-			FROM Empleado E WHERE E.[ValorDocumentoIdentidad] LIKE '%' + @inFiltro + '%'
+			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', 
+				E.[Nombre]
+			FROM Empleado E 
+				WHERE E.[ValorDocumentoIdentidad] LIKE '%' + @inFiltro + '%'
 				AND E.[EsActivo] = 1
 			ORDER BY E.[Nombre]
+
 			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
+
 			EXEC dbo.IngresarEvento 'Consulta con filtro de cedula', @IDUsername, @filtro, @outResultCodeEvento OUTPUT
 		END
 
@@ -77,7 +91,8 @@ BEGIN
 			SET @outResultCode = 50013;
 		END
 
-		-- valor de retorno en forma de tabla:
+		-- --------------------------------------------------------------- --
+
 		SELECT @outResultCode AS outResultCode
 
 	END TRY
@@ -94,7 +109,7 @@ BEGIN
 			GETDATE()
 		);
 
-		SET @outResultCode = 50008;           -- error: problema base de datos
+		SET @outResultCode = 50008;
 
 	END CATCH;
 	SET NOCOUNT OFF;

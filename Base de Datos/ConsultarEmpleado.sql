@@ -22,18 +22,22 @@ BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 		
-		-- inicializacion de variables:
+		-- INICIALIZAR VARIABLES:
 		SET @outResultCode = 0;
 
-		-- valor de retorno en forma de tabla:
+		-- --------------------------------------------------------------- --
+
 		SELECT @outResultCode AS outResultCode
 
-		-- generar la tabla:
-		SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre], 
-			P.[Nombre] AS 'Puesto', E.[SaldoVacaciones] AS 'Saldo Vacaciones'
+		-- GENERAR LA TABLA DE RESULTADOS:
+		SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', 
+			E.[Nombre], 
+			P.[Nombre] AS 'Puesto', 
+			E.[SaldoVacaciones] AS 'Saldo Vacaciones'
         FROM Empleado E
         INNER JOIN Puesto P ON E.[IDPuesto] = P.[ID]
-        WHERE E.[ValorDocumentoIdentidad] = @inCedula AND E.[EsActivo] = 1
+        WHERE E.[ValorDocumentoIdentidad] = @inCedula 
+			AND E.[EsActivo] = 1
 
 	END TRY
 

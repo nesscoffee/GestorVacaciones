@@ -33,8 +33,12 @@ BEGIN
 
 		-- inicializacion de variables:
 		SET @outResultCode = 0
+
 		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
-		SELECT @nombre = Nombre FROM Empleado E WHERE E.ValorDocumentoIdentidad = @inCedula;
+
+		SELECT @nombre = Nombre
+			FROM Empleado E
+			WHERE E.ValorDocumentoIdentidad = @inCedula;
 
 		-- valor de retorno en forma de tabla:
 		SELECT @outResultCode AS outResultCode
@@ -72,7 +76,7 @@ BEGIN
 			GETDATE()
 		);
 
-		SET @outResultCode = 50008;           -- error: problema base de datos
+		SET @outResultCode = 50008;
 
 	END CATCH;
 	SET NOCOUNT OFF;

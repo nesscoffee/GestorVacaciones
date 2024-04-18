@@ -25,18 +25,23 @@ BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
-		-- inicializacion de variables:
+		-- INICIALIZAR VARIABLES:
 		SET @outResultCode = 0;
-		
-		-- revisar si existe el codigo para obtener su descripcion:
+
+		-- --------------------------------------------------------------- --
+
+		-- ENCONTRAR ERROR:
+		-- revisar si existe el codigo de error para obtener su descripcion:
 		IF EXISTS (SELECT 1 FROM Error E WHERE E.Codigo = @inCodigo)
 			BEGIN
 				SELECT @outDescripcion = Descripcion FROM Error E WHERE E.Codigo = @inCodigo;
 			END
 		ELSE
 			BEGIN
-				SET @outResultCode = 50012;   -- error: codigo no encontrado
+				SET @outResultCode = 50012;
 			END
+
+		-- --------------------------------------------------------------- --
 
 		SELECT @outResultCode AS outResultCode;
 		END TRY
@@ -53,7 +58,7 @@ BEGIN
 			GETDATE()
 		);
 
-		SET @outResultCode = 50008;           -- error: problema base de datos
+		SET @outResultCode = 50008;
 
 	END CATCH;
 	SET NOCOUNT OFF;
