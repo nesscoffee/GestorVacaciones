@@ -43,8 +43,7 @@ BEGIN
 		SELECT M.[Fecha], 
 			TM.[Nombre],
 			M.[Monto], 
-			SUM(CASE WHEN TM.[TipoAccion] = 'Credito' THEN M.[Monto] ELSE -M.[Monto] END)
-				OVER (ORDER BY M.[Fecha]) AS 'Nuevo Saldo',
+			M.[NuevoSaldo] AS 'Nuevo Saldo',
 			U.[Username] AS 'Usuario',
 			M.[PostInIP],
 			M.[PostTime]
@@ -53,7 +52,7 @@ BEGIN
         INNER JOIN Usuario U ON M.[IDPostByUser] = U.[ID]
         INNER JOIN Empleado E ON M.[IDEmpleado] = E.[ID]
         WHERE E.[ValorDocumentoIdentidad] = @inCedula
-        ORDER BY M.[Fecha] DESC;
+        ORDER BY M.[PostTime] DESC;
 
 		-- guardar el evento en la bitacora:
 		SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @nombre));
