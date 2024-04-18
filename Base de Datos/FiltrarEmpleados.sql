@@ -44,6 +44,7 @@ BEGIN
 			SET @outResultCode = 0;
 			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre]
 			FROM Empleado E WHERE E.[Nombre] LIKE '%' + @inFiltro + '%'
+				AND E.[EsActivo] = 1
 			ORDER BY E.[Nombre]
 			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
 			EXEC dbo.IngresarEvento 'Consulta con filtro de nombre', @IDUsername, @filtro, @outResultCodeEvento OUTPUT
@@ -55,6 +56,7 @@ BEGIN
 			SET @outResultCode = 0;
 			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre]
 			FROM Empleado E WHERE E.[ValorDocumentoIdentidad] LIKE '%' + @inFiltro + '%'
+				AND E.[EsActivo] = 1
 			ORDER BY E.[Nombre]
 			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
 			EXEC dbo.IngresarEvento 'Consulta con filtro de cedula', @IDUsername, @filtro, @outResultCodeEvento OUTPUT

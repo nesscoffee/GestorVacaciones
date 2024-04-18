@@ -86,7 +86,7 @@ BEGIN
 		SELECT @descripcionError = Descripcion FROM Error E WHERE E.Codigo = @outResultCode;
 		SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ',
 			@inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
-		EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, ' ', @outResultCodeEvento OUTPUT;
+		EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 	END
 
 	-- insercion del empleado:

@@ -69,36 +69,65 @@ WITH (
     Pass VARCHAR(64)
 )
 
--- ingresar informacion de la seccion Movimientos en la tabla Movimiento:
-INSERT INTO Movimiento (IDEmpleado, IDTipoMovimiento, Fecha, Monto, NuevoSaldo, IDPostByUser, PostInIP, PostTime)
-SELECT
-    E.Id AS IDEmpleado,
-    T.Id AS IDTipoMovimiento,
-    M.movimiento.value('@Fecha', 'DATE') AS Fecha,
-    M.movimiento.value('@Monto', 'MONEY') AS Monto,
-    0 AS NuevoSaldo,
-    U.ID AS IDPostByUser,
-    M.movimiento.value('@PostInIP', 'VARCHAR(64)') AS PostInIP,
-    M.movimiento.value('@PostTime', 'VARCHAR(64)') AS PostTime
-FROM @xmlData.nodes('/Datos/Movimientos/movimiento') AS M(movimiento)
-JOIN Empleado AS E ON M.movimiento.value('@ValorDocId', 'INT') = E.ValorDocumentoIdentidad     -- mapeo de informacion con Empleado
-JOIN TipoMovimiento AS T ON M.movimiento.value('@IdTipoMovimiento', 'VARCHAR(64)') = T.Nombre  -- mapeo de informacion con TipoMovimiento
-JOIN Usuario AS U ON M.movimiento.value('@PostByUser', 'VARCHAR(64)') = U.Username             -- mapeo de informacion con Usuario
+CREATE TABLE #MovimientoData (
+	ID INT NOT NULL IDENTITY(1,1),
+    inCedula VARCHAR(64),
+    inNombreMovimiento VARCHAR(64),
+    inFecha DATE,
+    inMonto MONEY,
+    inUsername VARCHAR(64),
+    inIP VARCHAR(64),
+    inTime DATETIME
+);
 
--- actualizar los saldos de vacaciones de acuerdo a los movimientos:
-;WITH MovimientoTotals AS (
-    SELECT IDEmpleado,                                                                         -- por los valores de un usuario
-        SUM(CASE WHEN T.TipoAccion = 'Credito' THEN M.Monto ELSE 0 END) AS TotalCredito,       -- sumar todos los creditos
-        SUM(CASE WHEN T.TipoAccion = 'Debito' THEN M.Monto ELSE 0 END) AS TotalDebito          -- sumar todos los debitos
-    FROM Movimiento M
-    JOIN TipoMovimiento T ON M.IDTipoMovimiento = T.ID                                         -- mapeo de acuerdo con TipoMovimiento
-    GROUP BY IDEmpleado
-)
-UPDATE E
-    -- actualizar el saldo sumando creditos y restando debitos:
-SET SaldoVacaciones = E.SaldoVacaciones + ISNULL(MT.TotalCredito, 0) - ISNULL(MT.TotalDebito, 0)
-FROM Empleado E
-LEFT JOIN MovimientoTotals MT ON E.ID = MT.IDEmpleado;
+-- Insert the Movimiento data from XML into the temporary table
+INSERT INTO #MovimientoData (inCedula, inNombreMovimiento, inFecha, inMonto, inUsername, inIP, inTime)
+SELECT
+    M.movimiento.value('@ValorDocId', 'VARCHAR(64)'),
+    M.movimiento.value('@IdTipoMovimiento', 'VARCHAR(64)'),
+    M.movimiento.value('@Fecha', 'DATE'),
+    M.movimiento.value('@Monto', 'MONEY'),
+    M.movimiento.value('@PostByUser', 'VARCHAR(64)'),
+    M.movimiento.value('@PostInIP', 'VARCHAR(64)'),
+    M.movimiento.value('@PostTime', 'DATETIME')
+FROM @xmlData.nodes('/Datos/Movimientos/movimiento') AS M(movimiento)
+ORDER BY M.movimiento.value('@PostTime', 'DATETIME');
+
+-- Call the stored procedure for each row in the temporary table
+DECLARE @outResultCode INT;
+DECLARE @rowCount INT = (SELECT COUNT(*) FROM #MovimientoData);
+DECLARE @index INT = 1;
+
+WHILE @index <= @rowCount
+BEGIN
+    DECLARE @inCedula VARCHAR(64);
+    DECLARE @inNombreMovimiento VARCHAR(64);
+    DECLARE @inFecha DATE;
+    DECLARE @inMonto MONEY;
+    DECLARE @inUsername VARCHAR(64);
+    DECLARE @inIP VARCHAR(64);
+    DECLARE @inTime DATETIME;
+
+    -- Retrieve the values for the current row
+    SELECT TOP 1
+        @inCedula = inCedula,
+        @inNombreMovimiento = inNombreMovimiento,
+        @inFecha = inFecha,
+        @inMonto = inMonto,
+        @inUsername = inUsername,
+        @inIP = inIP,
+        @inTime = inTime
+    FROM #MovimientoData
+    WHERE ID = @index;
+
+    -- Call the stored procedure
+    EXEC dbo.IngresarMovimientoXML @inCedula, @inNombreMovimiento, @inFecha, @inMonto, @inUsername, @inIP, @inTime, @outResultCode OUTPUT;
+
+    SET @index = @index + 1;
+END;
+
+-- Drop the temporary table
+DROP TABLE #MovimientoData;
 
 -- ingresar la informacion de la seccion Error en la tabla Error:
 INSERT INTO Error (Codigo, Descripcion)

@@ -102,12 +102,12 @@ CREATE TABLE BitacoraEvento (
 
 -- codigo para eliminar las tablas en caso de necesidad
 
- --DROP TABLE BitacoraEvento;
- --DROP TABLE DBError;
- --DROP TABLE Error;
- --DROP TABLE TipoEvento;
- --DROP TABLE Movimiento;
- --DROP TABLE Empleado;
- --DROP TABLE Puesto;
- --DROP TABLE TipoMovimiento;
- --DROP TABLE Usuario;
+-- DROP TABLE BitacoraEvento;
+-- DROP TABLE DBError;
+-- DROP TABLE Error;
+-- DROP TABLE TipoEvento;
+-- DROP TABLE Movimiento;
+-- DROP TABLE Empleado;
+-- DROP TABLE Puesto;
+-- DROP TABLE TipoMovimiento;
+-- DROP TABLE Usuario;
