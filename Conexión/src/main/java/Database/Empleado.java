@@ -9,10 +9,10 @@
 package Database;
 
 public class Empleado {
-	
+		
 	private String cedula, nombre, puesto;
 	private float saldo;
-	
+		
 	/* ------------------------------------------------------------ */
 	// CONSTRUCTOR DE LA CLASE
 
@@ -20,14 +20,14 @@ public class Empleado {
 		this.cedula = cedula;
 		this.nombre = nombre;
 	}
-	
+		
 	public Empleado(String cedula, String nombre, String puesto, float saldo) {
 		this.cedula = cedula;
 		this.nombre = nombre;
 		this.puesto = puesto;
 		this.saldo = saldo;
 	}
-	
+		
 	/* ------------------------------------------------------------ */
 	// GETTERS Y SETTERS
 
@@ -62,10 +62,10 @@ public class Empleado {
 	public void setSaldo (float saldo) {
 		this.saldo = saldo;
 	}
-	
+		
 	/* ------------------------------------------------------------ */
 	// METODOS TO STRING
-	
+		
 	public String toStringShort (){
 		return "Empleado: " + this.nombre + " - ID: " + this.cedula;
 	}
