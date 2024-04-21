@@ -12,7 +12,7 @@
 
 -- Ejemplo de ejecucion:
 	-- DECLARE @outResultCode INT
-	-- EXECUTE dbo.ConsultarEmpleado @outResultCode OUTPUT
+	-- EXECUTE dbo.ConsultarEmpleado 'cedula', @outResultCode OUTPUT
 
 ALTER PROCEDURE dbo.ConsultarEmpleado
 	@inCedula INT,

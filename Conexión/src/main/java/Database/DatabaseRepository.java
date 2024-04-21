@@ -76,7 +76,7 @@ public class DatabaseRepository extends Repository {
 		return result;
     }
 
-    public Result consultError (int resultCode) {
+    public Result consultarError (int resultCode) {
         Result result = new Result();
 
         try {

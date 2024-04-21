@@ -49,6 +49,7 @@ BEGIN
 		SELECT @nombre = E.Nombre 
 			FROM Empleado E 
 			WHERE E.ValorDocumentoIdentidad = @inCedula;
+		PRINT 'Nombre: ' + @nombre;
 		
 		-- buscar el puesto del empleado que se desea borrar:
 		SET @puesto = (SELECT P.Nombre 

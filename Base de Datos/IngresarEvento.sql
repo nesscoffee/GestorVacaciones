@@ -51,6 +51,7 @@ BEGIN
 		-- insertar los valores en la bitacora de eventos:
 		INSERT BitacoraEvento (IDTipoEvento, Descripcion, IDPostByUser, PostInIP, PostTime)
 			VALUES (@IDTipoEvento, @inDescripcion, @inIDUsuario, @postIP, @postTime)
+		PRINT 'here2';
 
 		SELECT @outResultCode AS outResultCode;
 	END TRY

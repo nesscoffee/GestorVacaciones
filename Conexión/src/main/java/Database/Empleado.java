@@ -2,57 +2,59 @@ package Database;
 
 public class Empleado {
 	
-	private int id;
-	private String valorDocumentoIdentidad;
-	private String nombre;
-	private float saldoVacaciones;
-	
-	public Empleado(int pId, String pDocId, String pNombre, float pSaldoVacaciones) {
-		id = pId;
-		valorDocumentoIdentidad = pDocId;
-		nombre = pNombre;
-		saldoVacaciones = pSaldoVacaciones;
+	private String cedula, nombre, puesto;
+	private float saldo;
+
+	public Empleado (String cedula, String nombre) {
+		this.cedula = cedula;
+		this.nombre = nombre;
 	}
 	
-	public Empleado(String pDocId, String pNombre, float pSaldoVacaciones) {
-		valorDocumentoIdentidad = pDocId;
-		nombre = pNombre;
-		saldoVacaciones = pSaldoVacaciones;
+	public Empleado(String cedula, String nombre, String puesto, float saldo) {
+		this.cedula = cedula;
+		this.nombre = nombre;
+		this.puesto = puesto;
+		this.saldo = saldo;
 	}
 
-	public int getId() {
-		return id;
+	public String getCedula () {
+		return cedula;
 	}
 
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public String getValorDocumentoIdentidad() {
-		return valorDocumentoIdentidad;
-	}
-
-	public void setValorDocumentoIdentidad(String valorDocumentoIdentidad) {
-		this.valorDocumentoIdentidad = valorDocumentoIdentidad;
+	public void setCedula (String cedula) {
+		this.cedula = cedula;
 	}
 
 	public String getNombre() {
-		return nombre;
+		return this.nombre;
 	}
 
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
 
-	public float getSaldoVacaciones() {
-		return saldoVacaciones;
+	public String getPuesto() {
+		return this.puesto;
 	}
 
-	public void setSaldoVacaciones(float saldoVacaciones) {
-		this.saldoVacaciones = saldoVacaciones;
+	public void setPuesto(String puesto) {
+		this.puesto = puesto;
+	}
+
+	public float getSaldo() {
+		return this.saldo;
+	}
+
+	public void setSaldo (float saldo) {
+		this.saldo = saldo;
 	}
 	
-	public String toString (){
-		return "Empleado: " + this.nombre + " - ID: " + this.valorDocumentoIdentidad;
+	public String toStringShort (){
+		return "Empleado: " + this.nombre + " - ID: " + this.cedula;
+	}
+
+	public String toStringLong (){
+		return "Empleado: " + this.nombre + " - ID: " + this.cedula 
+			+ " - Puesto: " + this.puesto + " - Saldo: " + this.saldo;
 	}
 }

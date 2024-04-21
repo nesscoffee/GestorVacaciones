@@ -36,18 +36,31 @@ BEGIN
 		-- --------------------------------------------------------------- --
 
 		-- INICIALIZAR VARIABLES:
-		SET @outResultCode = -1;
+		SET @outResultCode = 0;
 
 		-- buscar el id usuario que esta activo:
 		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
 
 		-- --------------------------------------------------------------- --
+
+		-- IDENTIFICAR SI EL FILTRO ES INVALIDO:
+		-- el filtro no contiene ninguno de los formatos aceptados:
+		IF PATINDEX('%[^A-Za-z]%', @inFiltro) != 0
+			AND ISNUMERIC(@inFiltro) != 1
+			AND LTRIM(RTRIM(@inFiltro)) != ''
+		BEGIN
+			SET @outResultCode = 50013
+		END
+
+		-- --------------------------------------------------------------- --
+		-- CREAR LOS DATASETS:
+
+		SELECT @outResultCode AS outResultCode;
 	
 		-- IDENTIFICAR EL FILTRO QUE SE DEBE APLICAR:
 		-- el filtro contiene solo letras:
 		IF PATINDEX('%[^A-Za-z]%', @inFiltro) = 0
 		BEGIN
-			SET @outResultCode = 0;
 			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', 
 				E.[Nombre]
 			FROM Empleado E 
@@ -57,13 +70,13 @@ BEGIN
 
 			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
 
-			EXEC dbo.IngresarEvento 'Consulta con filtro de nombre', @IDUsername, @filtro, @outResultCodeEvento OUTPUT
+			EXEC dbo.IngresarEvento 'Consulta con filtro de nombre', @IDUsername, @filtro, @outResultCodeEvento OUTPUT;
+			RETURN;
 		END
 
 		-- el filtro contiene solo numeros:
 		IF ISNUMERIC(@inFiltro) = 1
 		BEGIN
-			SET @outResultCode = 0;
 			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', 
 				E.[Nombre]
 			FROM Empleado E 
@@ -73,27 +86,18 @@ BEGIN
 
 			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
 
-			EXEC dbo.IngresarEvento 'Consulta con filtro de cedula', @IDUsername, @filtro, @outResultCodeEvento OUTPUT
+			EXEC dbo.IngresarEvento 'Consulta con filtro de cedula', @IDUsername, @filtro, @outResultCodeEvento OUTPUT;
+			RETURN;
 		END
 
 		-- el filtro contiene solo espacios en blanco:
 		IF LTRIM(RTRIM(@inFiltro)) = ''
 		BEGIN
-			SET @outResultCode = 0;
 			SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', E.[Nombre]
 			FROM Empleado E
-			ORDER BY E.[Nombre]
+			ORDER BY E.[Nombre];
+			RETURN;
 		END
-
-		-- el filtro no cumple ninguno de los formatos aceptados:
-		IF (@outResultCode != 0)
-		BEGIN
-			SET @outResultCode = 50013;
-		END
-
-		-- --------------------------------------------------------------- --
-
-		SELECT @outResultCode AS outResultCode
 
 	END TRY
 

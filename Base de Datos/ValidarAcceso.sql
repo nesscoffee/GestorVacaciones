@@ -100,7 +100,9 @@ BEGIN
 			WHERE U.Username = @inUsername AND U.Password = @inPassword)
 		BEGIN
 			SELECT @inIDUsuario = ID FROM Usuario U WHERE U.Username = @inUsername;
+			PRINT 'here';
 			EXEC dbo.IngresarEvento 'Login Exitoso', @inIDUsuario, ' ', @outResultCodeEvento OUTPUT;
+			PRINT 'here';
 		END;
 
 		SELECT @outResultCode AS outResultCode;
