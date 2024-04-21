@@ -21,15 +21,15 @@ public class EmpleadoRepository extends Repository {
 
     private static EmpleadoRepository instance;
 	
-	/* ------------------------------------------------------------ */
-	// CONSTRUCTOR DE LA CLASE
+    /* ------------------------------------------------------------ */
+    // CONSTRUCTOR DE LA CLASE
 
     private EmpleadoRepository() {
         super();
     }
 	
-	/* ------------------------------------------------------------ */
-	// INSTANCIA DE LA CLASE
+    /* ------------------------------------------------------------ */
+    // INSTANCIA DE LA CLASE
 
     public static synchronized EmpleadoRepository getInstance() {
         if (instance == null){
@@ -38,7 +38,7 @@ public class EmpleadoRepository extends Repository {
         return instance;
     }
 	
-	/* ------------------------------------------------------------ */
+    /* ------------------------------------------------------------ */
 	// LISTAR EMPLEADOS
 	// retorna una lista con los empleados activos
 	
