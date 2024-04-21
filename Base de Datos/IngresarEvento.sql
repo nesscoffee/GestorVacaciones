@@ -7,6 +7,7 @@
 -- Descripcion de parametros:
 	-- @inNombreEvento: nombre del tipo de evento a guardar
 	-- @inIDUsuario: id del usuario que realizo la accion
+	-- @inIP: ip desde donde se realiza la accion
 	-- @inDescripcion: string descripcion del evento
 	-- @outResultCode: resultado del insertado en la tabla
 		-- si el codigo es 0, el codigo se ejecuto correctamente
@@ -19,10 +20,13 @@
 -- Notas adicionales:
 -- el nombre del evento se utiliza para mapear contra la tabla TipoEvento
 -- el usuario se utiliza para mapear contra la tabla Usuario
+-- si la llamada se ejecuta desde el login, se debe proveer usuario e ip
+-- de lo contrario, en ID del usuario se coloca un 0 y no se provee ip
 
 ALTER PROCEDURE dbo.IngresarEvento
 	  @inNombreEvento VARCHAR(64)
 	, @inIDUsuario INT
+	, @inIP VARCHAR(64)
 	, @inDescripcion VARCHAR(512)
 	, @outResultCode INT OUTPUT
 AS
@@ -33,7 +37,6 @@ BEGIN
 		-- DECLARAR VARIABLES:
 		
 		DECLARE @IDTipoEvento INT = NULL;
-		DECLARE @postIP VARCHAR(64);
 		DECLARE @postTime DATETIME;
 
 		-- ------------------------------------------------------------- --
@@ -49,9 +52,30 @@ BEGIN
 					WHERE TE.Nombre = @inNombreEvento;
 			END
 
-		SET @postIP = HOST_NAME();
 		SET @postTime = GETDATE();
 		
+		-- ------------------------------------------------------------- --
+		-- VERIFICAR SI SE INGRESO USUARIO E IP:
+
+		-- revisar si el usuario es cero:
+		IF @inIDUsuario = 0
+		BEGIN
+			SET @inIDUsuario = (SELECT TOP 1 BE.IDPostByUser 
+				FROM BitacoraEvento BE
+				INNER JOIN TipoEvento TE ON BE.IDTipoEvento = TE.ID
+				WHERE TE.Nombre = 'Logout'
+				ORDER BY BE.PostTime DESC);
+		END;
+
+		IF LEN(@inIP) = 0
+		BEGIN
+			SET @inIP = (SELECT TOP 1 BE.PostInIP
+				FROM BitacoraEvento BE
+				INNER JOIN TipoEvento TE ON BE.IDTipoEvento = TE.ID
+				WHERE TE.Nombre = 'Logout'
+				ORDER BY BE.PostTime DESC);
+		END;
+
 		-- ------------------------------------------------------------- --
 		-- INGRESAR EVENTOS:
 
@@ -64,8 +88,8 @@ BEGIN
 			VALUES (@IDTipoEvento
 				, @inDescripcion
 				, @inIDUsuario
-				, @postIP
-				, @postTime)
+				, @inIP
+				, @postTime);
 		
 		-- ------------------------------------------------------------- --
 

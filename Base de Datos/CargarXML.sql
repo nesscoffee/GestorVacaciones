@@ -27,47 +27,47 @@ EXEC sp_xml_preparedocument @value OUTPUT, @xmlData
 
 -- ingresar informacion de la seccion Puestos en la tabla Puesto:
 INSERT INTO Puesto (Nombre
-	, SalarioxHora)
+    , SalarioxHora)
 SELECT Nombre
-	 , SalarioxHora
+     , SalarioxHora
 FROM OPENXML (@value, '/Datos/Puestos/Puesto' , 1)
 WITH (
     Nombre VARCHAR(64)
-	, SalarioxHora MONEY
+    , SalarioxHora MONEY
 )
 
 -- ingresar informacion de la seccion TiposEvento en la tabla TipoEvento:
 INSERT INTO TipoEvento (ID
-	, Nombre)
+    , Nombre)
 SELECT Id
-	 , Nombre
+     , Nombre
 FROM OPENXML (@value, '/Datos/TiposEvento/TipoEvento' , 1)
 WITH (
-	Id INT
-	, Nombre VARCHAR(64)
+    Id INT
+    , Nombre VARCHAR(64)
 )
 
 -- ingresar informacion de la seccion TiposMovimiento en la tabla TipoMovimiento:
 INSERT INTO TipoMovimiento (ID
-	, Nombre
-	, TipoAccion)
+    , Nombre
+    , TipoAccion)
 SELECT Id
-	, Nombre
-	, TipoAccion
+    , Nombre
+    , TipoAccion
 FROM OPENXML (@value, '/Datos/TiposMovimientos/TipoMovimiento' , 1)
 WITH (
-	Id INT
-	, Nombre VARCHAR(64)
-	, TipoAccion VARCHAR(64)
+    Id INT
+    , Nombre VARCHAR(64)
+    , TipoAccion VARCHAR(64)
 )
 
 -- ingresar informacion de la seccion Empleados en la tabla Empleado:
 INSERT INTO Empleado (IDPuesto
-	, ValorDocumentoIdentidad
-	, Nombre
-	, FechaContratacion
-	, SaldoVacaciones
-	, EsActivo)
+    , ValorDocumentoIdentidad
+    , Nombre
+    , FechaContratacion
+    , SaldoVacaciones
+    , EsActivo)
 SELECT P.Id AS IDPuesto
     , E.empleado.value('@ValorDocumentoIdentidad', 'int') AS ValorDocumentoIdentidad
     , E.empleado.value('@Nombre', 'varchar(64)') AS Nombre
@@ -79,11 +79,11 @@ JOIN Puesto AS P ON E.empleado.value('@Puesto', 'varchar(64)') = P.Nombre       
 
 -- ingresar informacion de la seccion Usuarios en la tabla Usuario:
 INSERT INTO Usuario (ID
-	, Username
-	, Password)
+    , Username
+    , Password)
 SELECT Id
-	, Nombre
-	, Pass
+    , Nombre
+    , Pass
 FROM OPENXML (@value, '/Datos/Usuarios/usuario' , 1)
 WITH (
     Id INT
@@ -94,7 +94,7 @@ WITH (
 -- ingresar informacion de la seccion de Movimientos en la tabla Movimiento:
 -- crear tabla variable para registrar los datos originales:
 DECLARE @MovimientoData TABLE (
-	ID INT IDENTITY(1,1) PRIMARY KEY
+    ID INT IDENTITY(1,1) PRIMARY KEY
     , inCedula VARCHAR(64)
     , inNombreMovimiento VARCHAR(64)
     , inFecha DATE
@@ -106,12 +106,12 @@ DECLARE @MovimientoData TABLE (
 
 -- llenar la tabla con los datos
 INSERT INTO @MovimientoData (inCedula
-	, inNombreMovimiento
-	, inFecha
-	, inMonto
-	, inUsername
-	, inIP
-	, inTime)
+    , inNombreMovimiento
+    , inFecha
+    , inMonto
+    , inUsername
+    , inIP
+    , inTime)
 SELECT M.movimiento.value('@ValorDocId', 'VARCHAR(64)')
     , M.movimiento.value('@IdTipoMovimiento', 'VARCHAR(64)')
     , M.movimiento.value('@Fecha', 'DATE')
@@ -155,13 +155,13 @@ END;
 
 -- ingresar la informacion de la seccion Error en la tabla Error:
 INSERT INTO Error (Codigo
-	, Descripcion)
+    , Descripcion)
 SELECT Codigo
-	, Descripcion
+    , Descripcion
 FROM OPENXML (@value, '/Datos/Error/error' , 1)
 WITH (
-	Codigo INT
-	, Descripcion VARCHAR(128)
+    Codigo INT
+    , Descripcion VARCHAR(128)
 )
 
 -- ------------------------------------------------------------- ---- Armando Castro, Stephanie Sandoval | Abr 22. 24

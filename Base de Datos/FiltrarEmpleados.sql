@@ -31,16 +31,12 @@ BEGIN
 		-- DECLARAR VARIABLES:
 		
 		DECLARE @outResultCodeEvento INT;
-		DECLARE @IDUsername INT;
 		DECLARE @filtro VARCHAR(64);
 
 		-- ------------------------------------------------------------- --
 		-- INICIALIZAR VARIABLES:
 		
 		SET @outResultCode = 0;
-
-		-- buscar el id usuario que esta activo:
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
 
 		-- ------------------------------------------------------------- --
 		-- IDENTIFICAR SI EL FILTRO ES INVALIDO:
@@ -51,7 +47,7 @@ BEGIN
 			AND LTRIM(RTRIM(@inFiltro)) != ''
 		BEGIN
 			SET @outResultCode = 50013
-		END
+		END;
 
 		-- ------------------------------------------------------------- --
 		-- CREAR LOS DATASETS:
@@ -71,7 +67,7 @@ BEGIN
 
 			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Consulta con filtro de nombre', @IDUsername, @filtro, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Consulta con filtro de nombre', 0, '', @filtro, @outResultCodeEvento OUTPUT;
 			RETURN;
 		END;
 
@@ -87,7 +83,7 @@ BEGIN
 
 			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Consulta con filtro de cedula', @IDUsername, @filtro, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Consulta con filtro de cedula', 0, '', @filtro, @outResultCodeEvento OUTPUT;
 			RETURN;
 		END;
 

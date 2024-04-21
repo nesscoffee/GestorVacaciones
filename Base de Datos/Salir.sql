@@ -25,22 +25,18 @@ BEGIN
 
 		-- DECLARAR VARIABLES:
 		
-		DECLARE @IDUsername INT; 
 		DECLARE @outResultCodeEvento INT;
 
 		-- ------------------------------------------------------------- --
 		-- INICIALIZAR VARIABLES:
 		
 		SET @outResultCode = 0;
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser]
-			FROM BitacoraEvento
-			ORDER BY [ID] DESC);
 
 		-- ------------------------------------------------------------- --
 		-- EJECUTAR LOGOUT:
 		
 		-- registra el evento en la bitacora:
-		EXEC dbo.IngresarEvento 'Logout', @IDUsername, ' ', @outResultCodeEvento OUTPUT;
+		EXEC dbo.IngresarEvento 'Logout', 0, '', ' ', @outResultCodeEvento OUTPUT;
 		
 		-- ------------------------------------------------------------- --
 

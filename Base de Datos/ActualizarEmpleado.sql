@@ -37,7 +37,6 @@ BEGIN
 		
 		DECLARE @IDPuestoNuevo INT;
 		DECLARE @IDPuestoOriginal INT;
-		DECLARE @IDUsername INT;
 		DECLARE @descripcionEvento VARCHAR(512);
 		DECLARE @descripcionError VARCHAR(128);
 		DECLARE @nombreOriginal VARCHAR(64);
@@ -48,11 +47,6 @@ BEGIN
 		-- INICIALIZAR VARIABLES:
 		
 		SET @outResultCode = 0;
-
-		-- buscar el id usuario que esta activo:
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] 
-			FROM BitacoraEvento 
-			ORDER BY [ID] DESC);
 
 		-- buscar el nombre original del empleado que se desea actualizar:
 		SELECT @nombreOriginal = E.Nombre 
@@ -102,7 +96,7 @@ BEGIN
 				', nombre nuevo: ', @inNombreNuevo, 
 				', puesto nuevo: ', @inPuestoNuevo));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Update no exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Update no exitoso', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- la cedula nueva no contiene solo numeros:
@@ -122,7 +116,7 @@ BEGIN
 				', nombre nuevo: ', @inNombreNuevo,
 				', puesto nuevo: ', @inPuestoNuevo));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Update no exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Update no exitoso', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- ------------------------------------------------------------- --
@@ -148,7 +142,7 @@ BEGIN
 					', nombre nuevo: ', @inNombreNuevo,
 					', puesto nuevo: ', @inPuestoNuevo));
 				-- guardar evento en la bitacora:
-				EXEC dbo.IngresarEvento 'Update no exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+				EXEC dbo.IngresarEvento 'Update no exitoso', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 			END;
 		END;
 
@@ -172,7 +166,7 @@ BEGIN
 					', nombre nuevo: ', @inNombreNuevo,
 					', puesto nuevo: ', @inPuestoNuevo));
 				-- guardar evento en la bitacora:
-				EXEC dbo.IngresarEvento 'Update no exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+				EXEC dbo.IngresarEvento 'Update no exitoso', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 			END;
 		END;
 
@@ -207,7 +201,7 @@ BEGIN
 				', nombre nuevo: ', @inNombreNuevo, 
 				', puesto nuevo: ', @inPuestoNuevo));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Update exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Update exitoso', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- ------------------------------------------------------------- --

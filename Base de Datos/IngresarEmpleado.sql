@@ -36,7 +36,6 @@ BEGIN
 		-- DECLARAR VARIABLES:
 		
 		DECLARE @IDPuesto INT;
-		DECLARE @IDUsername INT;
 		DECLARE @descripcionError VARCHAR(128);
 		DECLARE @descripcionEvento VARCHAR(512);
 		DECLARE @outResultCodeEvento INT;
@@ -45,11 +44,6 @@ BEGIN
 		-- INICIALIZAR VARIABLES:
 		
 		SET @outResultCode = 0;
-
-		-- buscar el id usuario que esta activo:
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser]
-			FROM BitacoraEvento
-			ORDER BY [ID] DESC);
 
 		-- buscar el id del puesto con base en el nombre:
 		SELECT @IDPuesto = ID
@@ -72,7 +66,7 @@ BEGIN
 				', nombre: ', @inNombre,
 				', puesto: ', @inPuesto));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Insercion no exitosa', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- cedula no contiene solo numeros:
@@ -88,7 +82,7 @@ BEGIN
 				', nombre: ', @inNombre,
 				', puesto: ', @inPuesto));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Insercion no exitosa', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- ------------------------------------------------------------- --
@@ -107,7 +101,7 @@ BEGIN
 				', nombre: ', @inNombre,
 				', puesto: ', @inPuesto));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Insercion no exitosa', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- existe algun empleado con la misma cedula
@@ -123,7 +117,7 @@ BEGIN
 				', nombre: ', @inNombre,
 				', puesto: ', @inPuesto));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Insercion no exitosa', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- ------------------------------------------------------------- --
@@ -147,7 +141,7 @@ BEGIN
 			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula,
 				', nombre: ', @inNombre,
 				', puesto: ', @inPuesto));
-			EXEC dbo.IngresarEvento 'Insercion exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Insercion exitosa', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- ------------------------------------------------------------- --

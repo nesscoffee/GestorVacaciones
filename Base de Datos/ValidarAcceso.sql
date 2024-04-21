@@ -7,6 +7,7 @@
 -- Descripcion de parametros:
 	-- @inUsername: usuario de ingreso
 	-- @inPassword: contrasena del usuario
+	-- @inIP: ip desde el que se ingresa
 	-- @outResultCode: resultado de ejecucion
 		-- si el resultado es 0, el codigo corrio sin problemas
 		-- si es otro valor, se puede consultar en la tabla de errores
@@ -21,6 +22,7 @@
 ALTER PROCEDURE dbo.ValidarAcceso
 	  @inUsername VARCHAR(64)
 	, @inPassword VARCHAR(64)
+	, @inIP VARCHAR(64)
 	, @outResultCode INT OUTPUT
 AS
 BEGIN
@@ -43,17 +45,17 @@ BEGIN
 		SET @outResultCode = 0;
 
 		-- buscar la ultima fecha de estampa en bitacora:
-		SET @ultimoPostTime = (SELECT TOP 1 B.[PostTime]
+		SET @ultimoPostTime = (SELECT TOP 1 B.PostTime
 			FROM BitacoraEvento B
-			ORDER BY B.[PostTime] DESC);
+			ORDER BY B.PostTime DESC);
 
 		-- buscar el id de la ultima entrada en bitacora:
-		SET @IDUltimaEntrada = (SELECT TOP 1 B.[IDTipoEvento]
+		SET @IDUltimaEntrada = (SELECT TOP 1 B.IDTipoEvento
 			FROM BitacoraEvento B
-			ORDER BY B.[PostTime] DESC);
+			ORDER BY B.PostTime DESC);
 
 		-- buscar el tipo de evento de la ultima entrada en bitacora:
-		SELECT @ultimaEntrada = T.[Nombre]
+		SELECT @ultimaEntrada = T.Nombre
 			FROM TipoEvento T
 			WHERE T.ID = @IDUltimaEntrada;
 			
@@ -63,21 +65,23 @@ BEGIN
 		-- revisar cuantas veces ha intentado entrar el usuario:
 		SELECT @intentosLogin = COUNT(1)
 		FROM (
-			SELECT B.[IDTipoEvento], B.[PostTime], ROW_NUMBER() OVER (ORDER BY B.[PostTime] DESC) AS RowNumber
+			SELECT B.IDTipoEvento
+				, B.PostTime
+				, ROW_NUMBER() OVER (ORDER BY B.PostTime DESC) AS RowNumber
 			FROM BitacoraEvento B
 		) AS Subquery
 
 		-- revisar si fueron logins no existosos en los pasados 30 minutos:
-		WHERE Subquery.IDTipoEvento = (SELECT ID 
-			FROM TipoEvento 
-			WHERE Nombre = 'Login No Exitoso') 
+		WHERE Subquery.IDTipoEvento = (SELECT T.ID 
+			FROM TipoEvento  T
+			WHERE T.Nombre = 'Login No Exitoso') 
 		AND Subquery.PostTime >= DATEADD(MINUTE, -30, GETDATE())
 		AND NOT EXISTS (
 			SELECT 1
 			FROM BitacoraEvento B
-			WHERE B.[IDTipoEvento] = (SELECT ID 
-				FROM TipoEvento 
-				WHERE Nombre = 'Logout')
+			WHERE B.IDTipoEvento = (SELECT T.ID 
+				FROM TipoEvento T
+				WHERE T.Nombre = 'Logout')
 			AND B.[ID] > Subquery.RowNumber
 		);
 
@@ -88,14 +92,14 @@ BEGIN
 		IF DATEDIFF(MINUTE, @ultimoPostTime, GETDATE()) < 5 AND @ultimaEntrada = 'Login deshabilitado'
 		BEGIN
 			SET @outResultCode = 50003;                          -- error: login deshabilitado
-			EXEC dbo.IngresarEvento 'Login deshabilitado', 'UsuarioScripts', ' ', @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Login deshabilitado', 'UsuarioScripts', @inIP, ' ', @outResultCodeEvento OUTPUT;
 		END;
 
 		-- revisar si hubieron mas de 5 logins no existosos:
 		IF @outResultCode = 0 AND @intentosLogin >= 5
 		BEGIN
 			SET @outResultCode = 50003;                          -- error: login deshabilitado
-			EXEC dbo.IngresarEvento 'Login deshabilitado', 'UsuarioScripts', ' ', @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Login deshabilitado', 'UsuarioScripts', @inIP, ' ', @outResultCodeEvento OUTPUT;
 		END;
 		
 		-- ------------------------------------------------------------- --
@@ -106,7 +110,7 @@ BEGIN
 		BEGIN
 			SET @outResultCode = 50001;                          -- error: usuario no existe
 			SET @descripcion = (SELECT CONCAT ('intentos: ', CAST(@intentosLogin AS VARCHAR(1)), ', codigo 50001'));
-			EXEC dbo.IngresarEvento 'Login No Exitoso', 'UsuarioScripts', @descripcion, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Login No Exitoso', 'UsuarioScripts', @inIP, @descripcion, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- revisar que, dado que el usuario existe, la contrasena tambien existe:
@@ -114,7 +118,7 @@ BEGIN
 		BEGIN
 			SET @outResultCode = 50002;                          -- error: contrasena no existe
 			SET @descripcion = (SELECT CONCAT ('intentos: ', CAST(@intentosLogin AS VARCHAR(1)), ', codigo 50002'));
-			EXEC dbo.IngresarEvento 'Login No Exitoso', 'UsuarioScripts', @descripcion, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Login No Exitoso', 'UsuarioScripts', @inIP, @descripcion, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- revisar que, dado que ambos datos existen, estos coincidan:
@@ -124,7 +128,7 @@ BEGIN
 			SELECT @inIDUsuario = ID 
 				FROM Usuario U 
 				WHERE U.Username = @inUsername;
-			EXEC dbo.IngresarEvento 'Login Exitoso', @inIDUsuario, ' ', @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Login Exitoso', @inIDUsuario, @inIP, ' ', @outResultCodeEvento OUTPUT;
 		END;
 		
 		-- ------------------------------------------------------------- --

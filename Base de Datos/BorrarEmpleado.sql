@@ -34,7 +34,6 @@ BEGIN
 		DECLARE @nombre VARCHAR(64);
 		DECLARE @puesto VARCHAR(64);
 		DECLARE @saldo MONEY;
-		DECLARE @IDUsername INT;
 		DECLARE @outResultCodeEvento INT;
 		DECLARE @descripcionEvento VARCHAR(512);
 
@@ -42,11 +41,6 @@ BEGIN
 		-- INICIALIZAR VARIABLES:
 		
 		SET @outResultCode = 0;
-
-		-- buscar el id usuario que esta activo:
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser]
-			FROM BitacoraEvento
-			ORDER BY [ID] DESC);
 
 		-- buscar el nombre del empleado que se desea borrar:
 		SELECT @nombre = E.Nombre 
@@ -79,7 +73,7 @@ BEGIN
 				', puesto: ', @puesto,
 				', saldo vacaciones: ', @saldo));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Borrado exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Borrado exitoso', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 			
 		-- cuando el borrado no se confirma:
@@ -90,7 +84,7 @@ BEGIN
 				', puesto: ', @puesto,
 				', saldo vacaciones: ', @saldo));
 			-- guardar el evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Intento de borrado', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Intento de borrado', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- ------------------------------------------------------------- --

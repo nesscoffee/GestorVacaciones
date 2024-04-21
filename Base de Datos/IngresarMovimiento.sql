@@ -41,6 +41,7 @@ BEGIN
 		DECLARE @descripcionEvento VARCHAR(512);
 		DECLARE @nombre VARCHAR(64);
 		DECLARE @outResultCodeEvento INT;
+		DECLARE @postIP VARCHAR(64);
 		DECLARE @saldo MONEY;
 		DECLARE @tipoMovimiento VARCHAR(16);
 
@@ -60,9 +61,14 @@ BEGIN
 			WHERE T.Nombre = @inNombreMovimiento;
 
 		-- buscar el id usuario que esta activo:
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser]
-			FROM BitacoraEvento
-			ORDER BY [ID] DESC);
+		SET @IDUsername = (SELECT TOP 1 BE.IDPostByUser
+			FROM BitacoraEvento BE
+			ORDER BY BE.PostTime DESC);
+
+		-- buscar el ip del que accede el usuario activo:
+		SET @postIP = (SELECT TOP 1 BE.PostInIP
+			FROM BitacoraEvento BE
+			ORDER BY BE.PostTime DESC);
 
 		-- buscar el nombre del empleado:
 		SELECT @nombre = E.Nombre 
@@ -111,7 +117,7 @@ BEGIN
 				', movimiento: ', @inNombreMovimiento,
 				', monto: ', @inMonto));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Intento de insertar movimiento', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Intento de insertar movimiento', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 		
 		-- ------------------------------------------------------------- --
@@ -138,7 +144,7 @@ BEGIN
 				, @inMonto
 				, @saldo
 				, @IDUsername
-				, HOST_NAME()
+				, @postIP
 				, GETDATE());
 
 			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula,
@@ -147,7 +153,7 @@ BEGIN
 				', movimiento: ', @inNombreMovimiento,
 				', monto: ', @inMonto));
 			-- guardar evento en la bitacora:
-			EXEC dbo.IngresarEvento 'Insertar movimiento exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Insertar movimiento exitoso', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 		
 		-- ------------------------------------------------------------- --

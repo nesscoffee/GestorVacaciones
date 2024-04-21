@@ -46,22 +46,23 @@ public class DatabaseRepository extends Repository {
     //      - codigo 1  : resultado de la bitacora
     //      - codigo 2  : resultado del sp
 
-    public Result login (String username, String password) {
+    public Result login (String username, String password, String IP) {
         ResultSet resultSet;                                                          // para obtener los datasets
         Result result = new Result();                                                 // resultados del procedimiento
         
         try {
             // PARTE 1. Establecer conexion y llamar sp
             connection = DriverManager.getConnection(connectionURL);
-            String storedProcedureQuery = "{CALL dbo.ValidarAcceso(?, ?, ?)}";
+            String storedProcedureQuery = "{CALL dbo.ValidarAcceso(?, ?, ?, ?)}";
             callableStatement = connection.prepareCall(storedProcedureQuery);
             
             // PARTE 2. Establecer los parametros de entrada
             callableStatement.setString(1, username);                                 // recibe el usuario
             callableStatement.setString(2, password);                                 // recibe la contrasena
+            callableStatement.setString(3, IP);                                       // recibe el IP
             
             // PARTE 3. Establecer los parametros de salida y ejecutar
-            callableStatement.registerOutParameter(3, Types.INTEGER);                 // registrar el parametro de salida
+            callableStatement.registerOutParameter(4, Types.INTEGER);                 // registrar el parametro de salida
             callableStatement.execute();                                              // ejecutar el sp
 
             // PARTE 4. Obtener los resultados del sp

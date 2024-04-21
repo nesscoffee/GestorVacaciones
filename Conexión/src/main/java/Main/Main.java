@@ -14,7 +14,7 @@ public class Main {
         MovimientoRepository movrepo = MovimientoRepository.getInstance();
         Result result;
         
-         result = dbrepo.login("UsuarioScripts", "UsuarioScripts");
+         result = dbrepo.login("UsuarioScripts", "UsuarioScripts", "25.53.45.8");
         for (int code : result.getResultCodes()){
             System.out.println("Login: " + code);
             if (code != 0){
@@ -23,7 +23,7 @@ public class Main {
             }
         }
 
-        result = emrepo.agregarEmpleado("0000001", "Olaf", "Conductor");
+        result = emrepo.agregarEmpleado("1206827", "Andres Venegas", "Conductor");
         for (int code : result.getResultCodes()){
             System.out.println("Agregar empleado: " + code);
             if (code != 0){
@@ -41,7 +41,16 @@ public class Main {
             }
         }
 
-        result = emrepo.borrarEmpleado("0000001", true);
+        result = emrepo.borrarEmpleado("1206829", false);
+        for (int code : result.getResultCodes()){
+            System.out.println("Borrar empleado: " + code);
+            if (code != 0){
+                String description = (String)((dbrepo.consultarError(code)).getDataset().get(0));
+                System.out.println(description);
+            }
+        }
+
+        result = emrepo.borrarEmpleado("1206829", true);
         for (int code : result.getResultCodes()){
             System.out.println("Borrar empleado: " + code);
             if (code != 0){
@@ -69,7 +78,7 @@ public class Main {
             System.out.println(description);
         }
 
-        result = movrepo.listarMovimientos("6713229");
+        result = movrepo.listarMovimientos("1039590");
         int codeLista = result.getResultCodes().get(0);
         if (codeLista == 0){
             if (result.getDataset().size() == 0){
@@ -85,7 +94,7 @@ public class Main {
             System.out.println(description);
         }
 
-        result = movrepo.agregarMovimiento("1039590", "Venta de vacaciones", 3);
+        result = movrepo.agregarMovimiento("1039590", "Cumplir mes", 2);
         for (int code : result.getResultCodes()){
             System.out.println("Agregar movimiento: " + code);
             if (code != 0){

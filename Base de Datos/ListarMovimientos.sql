@@ -29,7 +29,6 @@ BEGIN
 
 		-- DECLARAR VARIABLES:
 		
-		DECLARE @IDUsername INT;
 		DECLARE @outResultCodeEvento INT;
 		DECLARE @descripcionEvento VARCHAR(512);
 		DECLARE @nombre VARCHAR(64);
@@ -38,10 +37,6 @@ BEGIN
 		-- INICIALIZAR VARIABLES:
 		
 		SET @outResultCode = 0
-
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser]
-			FROM BitacoraEvento
-			ORDER BY [ID] DESC);
 
 		SELECT @nombre = Nombre
 			FROM Empleado E
@@ -70,7 +65,7 @@ BEGIN
 		-- guardar el evento en la bitacora:
 		SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula,
 			', nombre: ', @nombre));
-		EXEC dbo.IngresarEvento 'Consulta de movimientos de empleado', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+		EXEC dbo.IngresarEvento 'Consulta de movimientos de empleado', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		
 		-- ------------------------------------------------------------- --
 
