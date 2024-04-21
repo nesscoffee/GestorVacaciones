@@ -42,8 +42,8 @@ public class DatabaseRepository extends Repository {
     //      - codigo 2: resultado del sp
 
     public Result login (String username, String password) {
-		ResultSet resultSet;                                              // para obtener los datasets
-        Result result = new Result();                                     // resultados del procedimiento
+		ResultSet resultSet;                                                  // para obtener los datasets
+        Result result = new Result();                                                 // resultados del procedimiento
 		
 		try {
             // PASO 1. Establecer conexion y llamar sp
@@ -60,19 +60,19 @@ public class DatabaseRepository extends Repository {
 			callableStatement.execute();                                  // ejecutar el sp
 
             // PASO 4. Obtener los resultados del sp
-            resultSet = callableStatement.getResultSet();                 // obtener el primer dataset: bitacora
-            resultSet.next();                                             // obtener el valor del dataset
-            result.addCode(resultSet.getInt(1));              // agregar valor al resultado
+            resultSet = callableStatement.getResultSet();                             // obtener el primer dataset: bitacora
+            resultSet.next();                                                         // obtener el valor del dataset
+            result.addCode(resultSet.getInt(1));                                      // agregar valor al resultado
 
-            callableStatement.getMoreResults();                           // buscar el siguiente dataset
-            resultSet = callableStatement.getResultSet();                 // obtener el segundo dataset: sp
-            resultSet.next();                                             // obtener el valor del sp
-            result.addCode(resultSet.getInt(1));              // agregar valor al resultado
+            callableStatement.getMoreResults();                                       // buscar el siguiente dataset
+            resultSet = callableStatement.getResultSet();                             // obtener el segundo dataset: sp
+            resultSet.next();                                                         // obtener el valor del sp
+            result.addCode(resultSet.getInt(1));                                      // agregar valor al resultado
 			
 		} catch (Exception e) {} finally {
 			closeResources();                                             // cerrar conexion; metodo heredado
 		}
-		return result;                                                    // retorna codigos
+		return result;                                                        // retorna codigos
 	}
 
     /* ------------------------------------------------------------ */
