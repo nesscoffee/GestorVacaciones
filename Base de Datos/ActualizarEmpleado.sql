@@ -1,10 +1,10 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Actualiza un empleado existente
+-- ACTUALIZA UN EMPLEADO EXISTENTE
 
--- Descripion de parametros:
+-- Descripcion de parametros:
 	-- @inCedulaOriginal: valor del documento de identidad del empleado antes de la actualizacion 
 	-- @inCedulaNueva: nuevo valor para el documento de identidad del empleado
 	-- @inNombreNuevo: nuevo valor para el nombre del empleado
@@ -19,21 +19,22 @@
 
 -- Notas adicionales:
 -- si alguno de los espacios viene en blanco, se mantiene la informacion previa
--- no se permite actualizar si el nombre o la cedula ya existen
+-- no se permite actualizar si el nombre nuevo o la cedula nueva ya existen en la BD
 -- todas las acciones quedan documentadas en la tabla bitacora de eventos
 
 ALTER PROCEDURE dbo.ActualizarEmpleado
-	@inCedulaOriginal VARCHAR(64),
-	@inCedulaNueva VARCHAR(64),
-	@inNombreNuevo VARCHAR(64),
-	@inPuestoNuevo VARCHAR(64),
-	@outResultCode INT OUTPUT
+	  @inCedulaOriginal VARCHAR(64)
+	, @inCedulaNueva VARCHAR(64)
+	, @inNombreNuevo VARCHAR(64)
+	, @inPuestoNuevo VARCHAR(64)
+	, @outResultCode INT OUTPUT
 AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
 		-- DECLARAR VARIABLES:
+		
 		DECLARE @IDPuestoNuevo INT;
 		DECLARE @IDPuestoOriginal INT;
 		DECLARE @IDUsername INT;
@@ -43,9 +44,9 @@ BEGIN
 		DECLARE @outResultCodeEvento INT;
 		DECLARE @puestoOriginal VARCHAR(64);
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- INICIALIZAR VARIABLES:
+		
 		SET @outResultCode = 0;
 
 		-- buscar el id usuario que esta activo:
@@ -74,51 +75,59 @@ BEGIN
 			FROM Puesto P 
 			WHERE P.Nombre = @puestoOriginal;
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- LIMPIAR VARIABLES:
+		
 		-- limpiar los nuevos datos para cedula y nombre:
 		SET @inCedulaNueva = LTRIM(RTRIM(@inCedulaNueva));
 		SET @inNombreNuevo = LTRIM(RTRIM(@inNombreNuevo));
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- VALIDAR DATOS:
+		
 		-- el nombre nuevo no contiene solo letras o espacios:
 		IF PATINDEX('%[^a-zA-Z ]%', @inNombreNuevo) != 0 
 			AND LEN(@inNombreNuevo) > 0
 		BEGIN
-			SET @outResultCode = 50009;
+			SET @outResultCode = 50009;                                      -- error: nombre no alfabetico
 			SELECT @descripcionError = Descripcion 
 				FROM Error E 
 				WHERE E.Codigo = @outResultCode;
 
-			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula original: ', @inCedulaOriginal, 
-				', nombre original: ', @nombreOriginal, ', puesto original: ', @puestoOriginal, ', cedula nueva: ',
-				@inCedulaNueva, ', nombre nuevo: ', @inNombreNuevo, ', puesto nuevo: ', @inPuestoNuevo));
-
+			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, 
+				', cedula original: ', @inCedulaOriginal, 
+				', nombre original: ', @nombreOriginal, 
+				', puesto original: ', @puestoOriginal, 
+				', cedula nueva: ', @inCedulaNueva, 
+				', nombre nuevo: ', @inNombreNuevo, 
+				', puesto nuevo: ', @inPuestoNuevo));
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Update no exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
-		END
+		END;
 
 		-- la cedula nueva no contiene solo numeros:
 		IF LEN(@inCedulaNueva) > 0
 			AND ISNUMERIC(@inCedulaNueva) != 1
 		BEGIN
-			SET @outResultCode = 50010;
+			SET @outResultCode = 50010;                                      -- error: cedula no numerica
 			SELECT @descripcionError = Descripcion 
 				FROM Error E 
 				WHERE E.Codigo = @outResultCode;
 
-			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula original: ', @inCedulaOriginal, 
-				', nombre original: ', @nombreOriginal, ', puesto original: ', @puestoOriginal, ', cedula nueva: ',
-				@inCedulaNueva, ', nombre nuevo: ', @inNombreNuevo, ', puesto nuevo: ', @inPuestoNuevo));
-
+			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError,
+				', cedula original: ', @inCedulaOriginal, 
+				', nombre original: ', @nombreOriginal,
+				', puesto original: ', @puestoOriginal,
+				', cedula nueva: ', @inCedulaNueva,
+				', nombre nuevo: ', @inNombreNuevo,
+				', puesto nuevo: ', @inPuestoNuevo));
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Update no exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
-		END
+		END;
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- REVISAR DUPLICADOS:
+		
 		-- existe algun empledo con el mismo nombre con el que se quiere actualizar:
 		IF @outResultCode = 0 
 			AND (@inNombreNuevo != @nombreOriginal
@@ -126,18 +135,22 @@ BEGIN
 		BEGIN
 			IF EXISTS (SELECT 1 FROM Empleado E WHERE E.Nombre = @inNombreNuevo)
 			BEGIN
-				SET @outResultCode = 50007;
+				SET @outResultCode = 50007;                                  -- error: empleado con mismo nombre ya existe
 				SELECT @descripcionError = Descripcion 
 					FROM Error E 
 					WHERE E.Codigo = @outResultCode;
 
-				SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula original: ', @inCedulaOriginal, 
-					', nombre original: ', @nombreOriginal, ', puesto original: ', @puestoOriginal, ', cedula nueva: ',
-					@inCedulaNueva, ', nombre nuevo: ', @inNombreNuevo, ', puesto nuevo: ', @inPuestoNuevo));
-
+				SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError,
+					', cedula original: ', @inCedulaOriginal, 
+					', nombre original: ', @nombreOriginal,
+					', puesto original: ', @puestoOriginal,
+					', cedula nueva: ', @inCedulaNueva,
+					', nombre nuevo: ', @inNombreNuevo,
+					', puesto nuevo: ', @inPuestoNuevo));
+				-- guardar evento en la bitacora:
 				EXEC dbo.IngresarEvento 'Update no exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
-			END
-		END
+			END;
+		END;
 
 		-- existe algun empleado con la misma cedula con la que se quiere actualizar:
 		IF @outResultCode = 0 
@@ -146,34 +159,38 @@ BEGIN
 		BEGIN
 			IF EXISTS (SELECT 1 FROM Empleado E WHERE E.ValorDocumentoIdentidad = @inCedulaNueva)
 			BEGIN
-				SET @outResultCode = 50006;
+				SET @outResultCode = 50006;                                  -- error: empleado con misma cedula ya existe
 				SELECT @descripcionError = Descripcion 
 					FROM Error E 
 					WHERE E.Codigo = @outResultCode;
 
-				SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula original: ', @inCedulaOriginal, 
-					', nombre original: ', @nombreOriginal, ', puesto original: ', @puestoOriginal, ', cedula nueva: ',
-					@inCedulaNueva, ', nombre nuevo: ', @inNombreNuevo, ', puesto nuevo: ', @inPuestoNuevo));
-
+				SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError,
+					', cedula original: ', @inCedulaOriginal, 
+					', nombre original: ', @nombreOriginal,
+					', puesto original: ', @puestoOriginal,
+					', cedula nueva: ', @inCedulaNueva,
+					', nombre nuevo: ', @inNombreNuevo,
+					', puesto nuevo: ', @inPuestoNuevo));
+				-- guardar evento en la bitacora:
 				EXEC dbo.IngresarEvento 'Update no exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
-			END
-		END
+			END;
+		END;
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- ACTUALIZAR EMPLEADO:
-		-- (en caso de que no existan duplicados)
+		
+		-- en caso de que no existan duplicados:
 		IF @outResultCode = 0
 		BEGIN
 			IF LEN(@inNombreNuevo) = 0
 			BEGIN
 				SET @inNombreNuevo = @nombreOriginal;
-			END
+			END;
 
 			IF LEN(@inCedulaNueva) = 0
 			BEGIN
 				SET @inCedulaNueva = @inCedulaOriginal;
-			END
+			END;
 
 			UPDATE Empleado
 			SET Nombre = @inNombreNuevo, 
@@ -183,16 +200,20 @@ BEGIN
 				AND ValorDocumentoIdentidad = @inCedulaOriginal 
 				AND IDPuesto = @IDPuestoOriginal;
 
-			SET @descripcionEvento = (SELECT CONCAT('cedula original: ', @inCedulaOriginal, ', nombre original: '
-				, @nombreOriginal, ', puesto original: ', @puestoOriginal, ', cedula nueva: ', @inCedulaNueva,
-				', nombre nuevo: ', @inNombreNuevo, ', puesto nuevo: ', @inPuestoNuevo));
-
+			SET @descripcionEvento = (SELECT CONCAT('cedula original: ', @inCedulaOriginal,
+				', nombre original: ' , @nombreOriginal,
+				', puesto original: ', @puestoOriginal,
+				', cedula nueva: ', @inCedulaNueva,
+				', nombre nuevo: ', @inNombreNuevo, 
+				', puesto nuevo: ', @inPuestoNuevo));
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Update exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
-		END
+		END;
 
-		-- --------------------------------------------------------------- --
+		-- ------------------------------------------------------------- --
 
 		SELECT @outResultCode AS outResultCode;
+		
 	END TRY
 	
 	BEGIN CATCH
@@ -208,6 +229,7 @@ BEGIN
 		);
 
 		SET @outResultCode = 50008;
+		SELECT @outResultCode AS outResultCode;
 
 	END CATCH;
 	SET NOCOUNT OFF;

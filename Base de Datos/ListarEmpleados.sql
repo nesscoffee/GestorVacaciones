@@ -1,10 +1,10 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Genera una lista de los empleados ordenados por nombre ascendente
+-- GENERA UNA LISTA DE LOS EMPLEADOS ACTIVOS (ordenada por nombre)
 
--- Descripion de parametros:
+-- Descripcion de parametros:
 	-- @outResultCode: resultado del insertado en la tabla
 		-- si el codigo es 0, el codigo se ejecuto correctamente
 		-- si es otro valor, se puede consultar en la tabla de errores
@@ -23,20 +23,25 @@ BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 		
-		-- inicializacion de variables:
+		-- INICIALIZAR VARIABLES:
+		
 		SET @outResultCode = 0;
 
-		-- valor de retorno en forma de tabla:
+		-- ------------------------------------------------------------- --
+		-- GENERAR DATASETS:
+		
 		SELECT @outResultCode AS outResultCode
 
-		-- generar la tabla:
-		SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', 
-			E.[Nombre]
+		-- generar la tabla de empleados:
+		SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad'
+			, E.[Nombre]
 		FROM Empleado E
 		WHERE E.[EsActivo] = 1
 		ORDER BY E.[Nombre]
 		-- para ordenar ascendentemente segun apellido:
 		-- ORDER BY SUBSTRING(E.[Nombre], CHARINDEX(' ', E.[Nombre]) + 1, LEN(E.[Nombre]) - CHARINDEX(' ', E.[Nombre]));
+		
+		-- ------------------------------------------------------------- --
 
 	END TRY
 
@@ -52,7 +57,8 @@ BEGIN
 			GETDATE()
 		);
 
-		SET @outResultCode = 50008;           -- error: problema base de datos
+		SET @outResultCode = 50008;
+		SELECT @outResultCode AS outResultCode
 
 	END CATCH;
 	SET NOCOUNT OFF;

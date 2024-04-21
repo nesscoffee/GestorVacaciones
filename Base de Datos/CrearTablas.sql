@@ -1,4 +1,4 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Script:
@@ -23,7 +23,7 @@ CREATE TABLE Puesto (
 -- tabla de empleados:
 CREATE TABLE Empleado (
 	ID INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-	IDPuesto INT,
+	IDPuesto INT NOT NULL,
 	ValorDocumentoIdentidad VARCHAR(64) NOT NULL,
 	Nombre VARCHAR(64),
 	FechaContratacion DATE NOT NULL,
@@ -49,8 +49,8 @@ CREATE TABLE Usuario (
 -- tabla de movimientos:
 CREATE TABLE Movimiento (
 	ID INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-	IDEmpleado INT,
-	IDTipoMovimiento INT,
+	IDEmpleado INT NOT NULL,
+	IDTipoMovimiento INT NOT NULL,
 	Fecha DATE NOT NULL,
 	Monto INT NOT NULL,
 	NuevoSaldo MONEY NOT NULL,
@@ -91,9 +91,9 @@ CREATE TABLE DBError (
 -- tabla de la bitacora de eventos:
 CREATE TABLE BitacoraEvento (
 	ID INT NOT NULL IDENTITY(1,1),
-	IDTipoEvento INT,
+	IDTipoEvento INT NOT NULL,
 	Descripcion VARCHAR(512),
-	IDPostByUser INT,
+	IDPostByUser INT NOT NULL,
 	PostInIP VARCHAR(64) NOT NULL,
 	PostTime DATETIME NOT NULL,
 	FOREIGN KEY (IDPostByUser) REFERENCES Usuario(ID),             -- FK a Usuario

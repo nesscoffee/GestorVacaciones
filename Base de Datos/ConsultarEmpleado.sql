@@ -1,8 +1,8 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Devuelve la informacion de un empleado en especifico
+-- DEVUELVE LA INFORMACION DE UN EMPLEADO EN ESPECIFICO
 
 -- Descripion de parametros:
 	-- @inCedula: valor del documento de identidad del empleado a consultar
@@ -13,6 +13,10 @@
 -- Ejemplo de ejecucion:
 	-- DECLARE @outResultCode INT
 	-- EXECUTE dbo.ConsultarEmpleado 'cedula', @outResultCode OUTPUT
+	
+-- Notas adicionales:
+-- la cedula viene por parte del sistema, no del usuario
+-- por tanto, no hace falta hacer validacion de esta, se sabe que ya es correcta
 
 ALTER PROCEDURE dbo.ConsultarEmpleado
 	@inCedula INT,
@@ -23,21 +27,25 @@ BEGIN
 	BEGIN TRY
 		
 		-- INICIALIZAR VARIABLES:
+		
 		SET @outResultCode = 0;
 
-		-- --------------------------------------------------------------- --
+		-- ------------------------------------------------------------- --
+		-- GENERAR DATASETS:
+		
+		SELECT @outResultCode AS outResultCode;
 
-		SELECT @outResultCode AS outResultCode
-
-		-- GENERAR LA TABLA DE RESULTADOS:
-		SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad', 
-			E.[Nombre], 
-			P.[Nombre] AS 'Puesto', 
-			E.[SaldoVacaciones] AS 'Saldo Vacaciones'
+		-- crear la tabla con la informacion del empleado:
+		SELECT E.[ValorDocumentoIdentidad] AS 'Documento Identidad'
+			 , E.[Nombre]
+			 , P.[Nombre] AS 'Puesto'
+			 , E.[SaldoVacaciones] AS 'Saldo Vacaciones'
         FROM Empleado E
         INNER JOIN Puesto P ON E.[IDPuesto] = P.[ID]
         WHERE E.[ValorDocumentoIdentidad] = @inCedula 
-			AND E.[EsActivo] = 1
+			AND E.[EsActivo] = 1;
+			
+		-- ------------------------------------------------------------- --
 
 	END TRY
 
@@ -53,7 +61,8 @@ BEGIN
 			GETDATE()
 		);
 
-		SET @outResultCode = 50008;           -- error: problema base de datos
+		SET @outResultCode = 50008;
+		SELECT @outResultCode AS outResultCode;
 
 	END CATCH;
 	SET NOCOUNT OFF;

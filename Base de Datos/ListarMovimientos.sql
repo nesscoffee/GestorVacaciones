@@ -1,10 +1,10 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Genera una lista de los movimientos de un empleado en especifico
+-- GENERA UNA LISTA DE LOS MOVIMIENTOS DE UN EMPLEADO EN ESPECIFICO
 
--- Descripion de parametros:
+-- Descripcion de parametros:
 	-- @inCedula: valor del documento de identidad del empleado
 	-- @outResultCode: resultado del insertado en la tabla
 		-- si el codigo es 0, el codigo se ejecuto correctamente
@@ -15,42 +15,51 @@
 	-- EXECUTE dbo.ListarMovimientos 'cedula', @outResultCode OUTPUT
 
 -- Notas adicionales:
--- 
+-- la cedula viene por parte del sistema, no del usuario
+-- por tanto, no hace falta hacer validacion de esta, se sabe que ya es correcta
+-- todas las acciones quedan documentadas en la tabla bitacora de eventos
 
 ALTER PROCEDURE dbo.ListarMovimientos
-	@inCedula INT,
-	@outResultCode INT OUTPUT
+	  @inCedula INT
+	, @outResultCode INT OUTPUT
 AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
-		-- declaracion de variables:
+		-- DECLARAR VARIABLES:
+		
 		DECLARE @IDUsername INT;
-		DECLARE @outResultCodeEvento INT;             -- para insertar eventos en la bitacora
+		DECLARE @outResultCodeEvento INT;
 		DECLARE @descripcionEvento VARCHAR(512);
 		DECLARE @nombre VARCHAR(64);
 
-		-- inicializacion de variables:
+		-- ------------------------------------------------------------- --
+		-- INICIALIZAR VARIABLES:
+		
 		SET @outResultCode = 0
 
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
+		SET @IDUsername = (SELECT TOP 1 [IDPostByUser]
+			FROM BitacoraEvento
+			ORDER BY [ID] DESC);
 
 		SELECT @nombre = Nombre
 			FROM Empleado E
 			WHERE E.ValorDocumentoIdentidad = @inCedula;
+			
+		-- ------------------------------------------------------------- --
+		-- GENERAR DATASETS:
 
-		-- valor de retorno en forma de tabla:
 		SELECT @outResultCode AS outResultCode
 
-		-- generar la tabla:
-		SELECT M.[Fecha], 
-			TM.[Nombre] AS 'Nombre Movimiento',
-			M.[Monto], 
-			M.[NuevoSaldo] AS 'Nuevo Saldo',
-			U.[Username] AS 'Usuario',
-			M.[PostInIP],
-			M.[PostTime]
+		-- generar la tabla de movimientos:
+		SELECT M.[Fecha]
+			 , TM.[Nombre] AS 'Nombre Movimiento'
+			 , M.[Monto]
+			 , M.[NuevoSaldo] AS 'Nuevo Saldo'
+			 , U.[Username] AS 'Usuario'
+			 , M.[PostInIP]
+			 , M.[PostTime]
         FROM Movimiento M
         INNER JOIN TipoMovimiento TM ON M.[IDTipoMovimiento] = TM.[ID]
         INNER JOIN Usuario U ON M.[IDPostByUser] = U.[ID]
@@ -59,8 +68,11 @@ BEGIN
         ORDER BY M.[PostTime] DESC;
 
 		-- guardar el evento en la bitacora:
-		SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @nombre));
+		SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula,
+			', nombre: ', @nombre));
 		EXEC dbo.IngresarEvento 'Consulta de movimientos de empleado', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
+		
+		-- ------------------------------------------------------------- --
 
 	END TRY
 

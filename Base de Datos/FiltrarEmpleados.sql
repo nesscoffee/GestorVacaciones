@@ -1,10 +1,10 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Genera una lista de empleados despues de aplicar un filtro
+-- GENERA UNA LISTA DE EMPLEADOS DESPUES DE APLICAR UN FILTRO
 
--- Descripion de parametros:
+-- Descripcion de parametros:
 	-- @inFiltro: string que se va a utilizar para filtrar resultados
 		-- si contiene solo letras, se filtra por nombre
 		-- si contiene solo numeros, se filtra por documento de identidad
@@ -21,29 +21,30 @@
 -- todas las acciones quedan documentadas en la tabla bitacora de eventos
 
 ALTER PROCEDURE dbo.FiltrarEmpleados
-	@inFiltro VARCHAR(64),
-	@outResultCode INT OUTPUT
+	  @inFiltro VARCHAR(64)
+	, @outResultCode INT OUTPUT
 AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
 		-- DECLARAR VARIABLES:
+		
 		DECLARE @outResultCodeEvento INT;
 		DECLARE @IDUsername INT;
 		DECLARE @filtro VARCHAR(64);
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- INICIALIZAR VARIABLES:
+		
 		SET @outResultCode = 0;
 
 		-- buscar el id usuario que esta activo:
 		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- IDENTIFICAR SI EL FILTRO ES INVALIDO:
+		
 		-- el filtro no contiene ninguno de los formatos aceptados:
 		IF PATINDEX('%[^A-Za-z]%', @inFiltro) != 0
 			AND ISNUMERIC(@inFiltro) != 1
@@ -52,12 +53,12 @@ BEGIN
 			SET @outResultCode = 50013
 		END
 
-		-- --------------------------------------------------------------- --
+		-- ------------------------------------------------------------- --
 		-- CREAR LOS DATASETS:
 
 		SELECT @outResultCode AS outResultCode;
 	
-		-- IDENTIFICAR EL FILTRO QUE SE DEBE APLICAR:
+		-- crear tabla de resultados segun filtro:
 		-- el filtro contiene solo letras:
 		IF PATINDEX('%[^A-Za-z]%', @inFiltro) = 0
 		BEGIN
@@ -69,10 +70,10 @@ BEGIN
 			ORDER BY E.[Nombre]
 
 			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
-
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Consulta con filtro de nombre', @IDUsername, @filtro, @outResultCodeEvento OUTPUT;
 			RETURN;
-		END
+		END;
 
 		-- el filtro contiene solo numeros:
 		IF ISNUMERIC(@inFiltro) = 1
@@ -85,10 +86,10 @@ BEGIN
 			ORDER BY E.[Nombre]
 
 			SET @filtro = (SELECT CONCAT('filtro: ', @inFiltro));
-
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Consulta con filtro de cedula', @IDUsername, @filtro, @outResultCodeEvento OUTPUT;
 			RETURN;
-		END
+		END;
 
 		-- el filtro contiene solo espacios en blanco:
 		IF LTRIM(RTRIM(@inFiltro)) = ''
@@ -97,7 +98,9 @@ BEGIN
 			FROM Empleado E
 			ORDER BY E.[Nombre];
 			RETURN;
-		END
+		END;
+		
+		-- ------------------------------------------------------------- --
 
 	END TRY
 
@@ -114,6 +117,7 @@ BEGIN
 		);
 
 		SET @outResultCode = 50008;
+		SELECT @outResultCode AS outResultCode;
 
 	END CATCH;
 	SET NOCOUNT OFF;

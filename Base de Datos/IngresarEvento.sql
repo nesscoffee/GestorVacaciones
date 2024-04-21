@@ -1,10 +1,10 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Ingresa los eventos a la bitacora
+-- INGRESA LOS EVENTOS A LA BITACORA
 
--- Descripion de parametros:
+-- Descripcion de parametros:
 	-- @inNombreEvento: nombre del tipo de evento a guardar
 	-- @inIDUsuario: id del usuario que realizo la accion
 	-- @inDescripcion: string descripcion del evento
@@ -19,41 +19,58 @@
 -- Notas adicionales:
 -- el nombre del evento se utiliza para mapear contra la tabla TipoEvento
 -- el usuario se utiliza para mapear contra la tabla Usuario
--- si no se ingresan valores existentes, se colocan un NULL en la bitacora
 
 ALTER PROCEDURE dbo.IngresarEvento
-	@inNombreEvento VARCHAR(64),
-	@inIDUsuario INT,
-	@inDescripcion VARCHAR(512),
-	@outResultCode INT OUTPUT
+	  @inNombreEvento VARCHAR(64)
+	, @inIDUsuario INT
+	, @inDescripcion VARCHAR(512)
+	, @outResultCode INT OUTPUT
 AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
-		-- declaracion de variables:
+		-- DECLARAR VARIABLES:
+		
 		DECLARE @IDTipoEvento INT = NULL;
 		DECLARE @postIP VARCHAR(64);
 		DECLARE @postTime DATETIME;
 
-		-- inicializacion de variables:
+		-- ------------------------------------------------------------- --
+		-- INICIALIZAR VARIABLES:
+		
 		SET @outResultCode = 0;
 
 		-- revisar si existe el tipo de evento para obtener su id:
 		IF EXISTS (SELECT 1 FROM TipoEvento TE WHERE TE.Nombre = @inNombreEvento)
 			BEGIN
-				SELECT @IDTipoEvento = ID FROM TipoEvento TE WHERE TE.Nombre = @inNombreEvento;
+				SELECT @IDTipoEvento = ID
+					FROM TipoEvento TE
+					WHERE TE.Nombre = @inNombreEvento;
 			END
 
-		SET @postIP = HOST_NAME();            -- cambiar para ingresar IP exacto?
-		SET @postTime = GETDATE();            -- obtiene la fecha y hora del sistema
+		SET @postIP = HOST_NAME();
+		SET @postTime = GETDATE();
+		
+		-- ------------------------------------------------------------- --
+		-- INGRESAR EVENTOS:
 
 		-- insertar los valores en la bitacora de eventos:
-		INSERT BitacoraEvento (IDTipoEvento, Descripcion, IDPostByUser, PostInIP, PostTime)
-			VALUES (@IDTipoEvento, @inDescripcion, @inIDUsuario, @postIP, @postTime)
-		PRINT 'here2';
+		INSERT BitacoraEvento (IDTipoEvento
+			 , Descripcion
+			 , IDPostByUser
+			 , PostInIP
+			 , PostTime)
+			VALUES (@IDTipoEvento
+				, @inDescripcion
+				, @inIDUsuario
+				, @postIP
+				, @postTime)
+		
+		-- ------------------------------------------------------------- --
 
 		SELECT @outResultCode AS outResultCode;
+		
 	END TRY
 	
 	BEGIN CATCH
@@ -68,7 +85,8 @@ BEGIN
 			GETDATE()
 		);
 
-		SET @outResultCode = 50008;           -- error: problema base de datos
+		SET @outResultCode = 50008;
+		SELECT @outResultCode AS outResultCode;
 
 	END CATCH;
 	SET NOCOUNT OFF;

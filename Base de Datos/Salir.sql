@@ -1,19 +1,17 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Verifica que los datos de acceso sean validos
+-- EJECUTA EL LOGOUT DEL USUARIO
 
 -- Descripcion de parametros:
-	-- @inUsername: usuario de ingreso
-	-- @inPassword: contrasena del usuario
 	-- @outResultCode: resultado de ejecucion
 		-- si el resultado es 0, el codigo corrio sin problemas
 		-- si es otro valor, se puede consultar en la tabla de errores
 
 -- Ejemplo de ejecucion:
 	-- DECLARE @outResultCode INT
-	-- EXECUTE dbo.ValidarAcceso 'usuario', 'password', @outResultCode OUTPUT
+	-- EXECUTE dbo.Salir @outResultCode OUTPUT
 
 -- Notas adicionales:
 -- todas las acciones quedan documentadas en la tabla bitacora de eventos
@@ -25,18 +23,29 @@ BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
-		-- declaracion de variables:
+		-- DECLARAR VARIABLES:
+		
 		DECLARE @IDUsername INT; 
 		DECLARE @outResultCodeEvento INT;
 
-		-- inicializacion de variables:
+		-- ------------------------------------------------------------- --
+		-- INICIALIZAR VARIABLES:
+		
 		SET @outResultCode = 0;
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
+		SET @IDUsername = (SELECT TOP 1 [IDPostByUser]
+			FROM BitacoraEvento
+			ORDER BY [ID] DESC);
 
-		-- guardar dato en la bitacora:
+		-- ------------------------------------------------------------- --
+		-- EJECUTAR LOGOUT:
+		
+		-- registra el evento en la bitacora:
 		EXEC dbo.IngresarEvento 'Logout', @IDUsername, ' ', @outResultCodeEvento OUTPUT;
+		
+		-- ------------------------------------------------------------- --
 
 		SELECT @outResultCode AS outResultCode;
+		
 	END TRY
 	
 	BEGIN CATCH

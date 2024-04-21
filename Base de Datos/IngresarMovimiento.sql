@@ -1,10 +1,10 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
 -- Ingresa un movimiento nuevo a un empleado en especifico
 
--- Descripion de parametros:
+-- Descripcion de parametros:
 	-- @inCedula: valor del documento de identidad del empleado
 	-- @inNombreMovimiento: nombre del nuevo movimiento
 	-- @inMonto: monto del nuevo movimiento
@@ -23,16 +23,17 @@
 -- todas las acciones quedan documentadas en la tabla bitacora de eventos
 
 ALTER PROCEDURE dbo.IngresarMovimiento
-	@inCedula VARCHAR(64),
-	@inNombreMovimiento VARCHAR(64),
-	@inMonto MONEY,
-	@outResultCode INT OUTPUT
+	  @inCedula VARCHAR(64)
+	, @inNombreMovimiento VARCHAR(64)
+	, @inMonto MONEY
+	, @outResultCode INT OUTPUT
 AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
-		-- declaracion de variables:
+		-- DECLARAR VARIABLES:
+		
 		DECLARE @IDEmpleado INT;
 		DECLARE @IDTipoMovimiento INT;
 		DECLARE @IDUsername INT;
@@ -43,34 +44,45 @@ BEGIN
 		DECLARE @saldo MONEY;
 		DECLARE @tipoMovimiento VARCHAR(16);
 
-		-- inicializacion de variables:
+		-- ------------------------------------------------------------- --
+		-- INICIALIZAR VARIABLES:
+		
+		SET @outResultCode = 0;
+		
+		-- buscar el id del empleado al que pertenece el movimiento:
 		SELECT @IDEmpleado = E.ID 
 			FROM Empleado E 
 			WHERE E.ValorDocumentoIdentidad = @inCedula;
 
+		-- buscar el id del tipo de movimiento:
 		SELECT @IDTipoMovimiento = T.ID
 			FROM TipoMovimiento T
 			WHERE T.Nombre = @inNombreMovimiento;
 
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
+		-- buscar el id usuario que esta activo:
+		SET @IDUsername = (SELECT TOP 1 [IDPostByUser]
+			FROM BitacoraEvento
+			ORDER BY [ID] DESC);
 
-		SET @outResultCode = 0;
-
+		-- buscar el nombre del empleado:
 		SELECT @nombre = E.Nombre 
 			FROM Empleado E 
 			WHERE E.ValorDocumentoIdentidad = @inCedula;
 
+		-- buscar el saldo actual del empleado:
 		SELECT @saldo = E.SaldoVacaciones 
 			FROM Empleado E 
 			WHERE E.ValorDocumentoIdentidad = @inCedula;
 
+		-- buscar el tipo de movimiento (accion)
 		SELECT @tipoMovimiento = T.TipoAccion
 			FROM TipoMovimiento T
 			WHERE T.Nombre = @inNombreMovimiento;
 
-		-- validacion de datos:
-		-- monto no deberia ser negativo
-		-- la suma o resta se aplica segun el tipo del movimiento
+		-- ------------------------------------------------------------- --
+		-- VALIDAR DATOS:
+		
+		-- monto no deberia ser negativo:
 		IF (@inMonto < 0)
 		BEGIN
 			SET @outResultCode = 50014;
@@ -92,11 +104,18 @@ BEGIN
 				FROM Error E 
 				WHERE E.Codigo = @outResultCode;
 
-			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ', @inCedula, ', nombre: ',
-				@nombre, ', saldo: ', @saldo, ', movimiento: ', @inNombreMovimiento, ', monto: ', @inMonto));
-
+			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError,
+				', cedula: ', @inCedula,
+				', nombre: ', @nombre,
+				', saldo: ', @saldo,
+				', movimiento: ', @inNombreMovimiento,
+				', monto: ', @inMonto));
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Intento de insertar movimiento', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
+		
+		-- ------------------------------------------------------------- --
+		-- APLICAR MOVIMIENTO:
 
 		-- aplicacion del movimiento si saldo no es muy negativo:
 		IF @outResultCode = 0
@@ -105,16 +124,36 @@ BEGIN
 			SET SaldoVacaciones = @saldo
 			WHERE ValorDocumentoIdentidad = @inCedula;
 
-			INSERT Movimiento (IDEmpleado, IDTipoMovimiento, Fecha, Monto, NuevoSaldo, IDPostByUser, PostInIP, PostTime)
-			VALUES (@IDEmpleado, @IDTipoMovimiento, CAST(GETDATE() AS DATE), @inMonto, @saldo, @IDUsername, HOST_NAME(), GETDATE())
+			INSERT Movimiento (IDEmpleado
+				, IDTipoMovimiento
+				, Fecha
+				, Monto
+				, NuevoSaldo
+				, IDPostByUser
+				, PostInIP
+				, PostTime)
+			VALUES (@IDEmpleado
+				, @IDTipoMovimiento
+				, CAST(GETDATE() AS DATE)
+				, @inMonto
+				, @saldo
+				, @IDUsername
+				, HOST_NAME()
+				, GETDATE());
 
-			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @nombre, ', saldo: '
-				, @saldo, ', movimiento: ', @inNombreMovimiento, ', monto: ', @inMonto));
-				
+			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula,
+				', nombre: ', @nombre,
+				', saldo: ' , @saldo,
+				', movimiento: ', @inNombreMovimiento,
+				', monto: ', @inMonto));
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Insertar movimiento exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
+		
+		-- ------------------------------------------------------------- --
 
 		SELECT @outResultCode AS outResultCode;
+		
 	END TRY
 	
 	BEGIN CATCH
@@ -130,6 +169,7 @@ BEGIN
 		);
 
 		SET @outResultCode = 50008;
+		SELECT @outResultCode AS outResultCode;
 
 	END CATCH;
 	SET NOCOUNT OFF;

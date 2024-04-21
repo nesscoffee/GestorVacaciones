@@ -1,67 +1,78 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Ingresa un movimiento nuevo durante carga del XML
+-- INGRESA UN NUEVO MOVIMIENTO DURANTE LA CARGA DEL XML
 
--- Descripion de parametros:
+-- Descripcion de parametros:
 	-- @inCedula: valor del documento de identidad del empleado
 	-- @inNombreMovimiento: nombre del nuevo movimiento
+	-- @inFecha: fecha en que se realizar el movimiento
+	-- @inMonto: monto del movimiento
+	-- @inUsername: usuario de la persona que registro el movimiento
+	-- @inIP: IP en el que se registro el movimiento
+	-- @inTime: estampa de tiempo del registro del movimiento
 
 -- Ejemplo de ejecucion:
 	-- DECLARE @outResultCode INT
-	-- EXECUTE dbo.IngresarMovimiento 'cedula', 'tipo', 0, @outResultCode OUTPUT
+	-- EXECUTE dbo.IngresarMovimientoXML 'cedula', 'nombre', 'fecha', 0, 'usuario', 'ip', 'estampa', @outResultCode OUTPUT
 
 -- Notas adicionales:
--- si es debito se resta, si es credito se suma
--- dado que la cedula la provee el sistema, se asume que esta correcta
--- por tanto, no se hace revision de su formato
--- todas las acciones quedan documentadas en la tabla bitacora de eventos
+-- mapea los valores necesarios con las tablas correspondientes
 
 CREATE PROCEDURE dbo.IngresarMovimientoXML
-	@inCedula VARCHAR(64),
-	@inNombreMovimiento VARCHAR(64),
-	@inFecha DATE,
-	@inMonto MONEY,
-	@inUsername VARCHAR(64),
-	@inIP VARCHAR(64),
-	@inTime DATETIME,
-	@outResultCode INT OUTPUT
+	  @inCedula VARCHAR(64)
+	, @inNombreMovimiento VARCHAR(64)
+	, @inFecha DATE
+	, @inMonto MONEY
+	, @inUsername VARCHAR(64)
+	, @inIP VARCHAR(64)
+	, @inTime DATETIME
+	, @outResultCode INT OUTPUT
 AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
+	
+		-- DECLARAR VARIABLES:
 
-		-- declaracion de variables:
 		DECLARE @IDEmpleado INT;
 		DECLARE @IDTipoMovimiento INT;
 		DECLARE @IDUsuario INT;
 		DECLARE @saldo MONEY;
 		DECLARE @tipoMovimiento VARCHAR(16);
 
-		-- inicializacion de variables:
+		-- ------------------------------------------------------------- --
+		-- INICIALIZAR VARIABLES:
+		
 		SET @outResultCode = 0;
 
+		-- buscar el id del empleado al que pertenece el movimiento:
 		SELECT @IDEmpleado = E.ID 
 			FROM Empleado E
 			WHERE E.ValorDocumentoIdentidad = @inCedula;
 
+		-- buscar el id del tipo de movimiento:
 		SELECT @IDTipoMovimiento = T.ID
 			FROM TipoMovimiento T
 			WHERE T.Nombre = @inNombreMovimiento;
 
+		-- buscar el id usuario que esta activo:
 		SELECT @IDUsuario = U.ID
 			FROM Usuario U
 			WHERE U.Username = @inUsername;
 
+		-- buscar el saldo actual del empleado:
 		SELECT @saldo = E.SaldoVacaciones
 			FROM Empleado E
 			WHERE E.ValorDocumentoIdentidad = @inCedula;
 
+		-- buscar el tipo de movimiento (accion)
 		SELECT @tipoMovimiento = T.TipoAccion
 			FROM TipoMovimiento T
 			WHERE T.Nombre = @inNombreMovimiento;
 
+		-- establecer nuevo saldo (en base al monto nuevo)
 		SET @saldo = CASE
 			WHEN @tipoMovimiento = 'Credito' 
 				THEN @saldo + @inMonto
@@ -69,14 +80,37 @@ BEGIN
 				THEN @saldo - @inMonto
 			END;
 
+		-- ------------------------------------------------------------- --
+		-- ACTUALIZAR DATOS:
+		
 		UPDATE Empleado
 			SET SaldoVacaciones = @saldo
 			WHERE ValorDocumentoIdentidad = @inCedula;
+			
+		-- ------------------------------------------------------------- --
+		-- INGRESAR MOVIMIENTO:
 
-		INSERT Movimiento (IDEmpleado, IDTipoMovimiento, Fecha, Monto, NuevoSaldo, IDPostByUser, PostInIP, PostTime)
-		VALUES (@IDEmpleado, @IDTipoMovimiento, @inFecha, @inMonto, @saldo, @IDUsuario, @inIP, @inTime)
+		INSERT Movimiento (IDEmpleado
+			, IDTipoMovimiento
+			, Fecha
+			, Monto
+			, NuevoSaldo
+			, IDPostByUser
+			, PostInIP
+			, PostTime)
+		VALUES (@IDEmpleado
+			, @IDTipoMovimiento
+			, @inFecha
+			, @inMonto
+			, @saldo
+			, @IDUsuario
+			, @inIP
+			, @inTime);
+		
+		-- ------------------------------------------------------------- --
 
 		SELECT @outResultCode AS outResultCode;
+		
 	END TRY
 	
 	BEGIN CATCH
@@ -92,6 +126,7 @@ BEGIN
 		);
 
 		SET @outResultCode = 50008;
+		SELECT @outResultCode AS outResultCode;
 
 	END CATCH;
 	SET NOCOUNT OFF;

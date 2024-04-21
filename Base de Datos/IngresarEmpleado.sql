@@ -1,13 +1,13 @@
--- Armando Castro, Stephanie Sandoval | Abr 17. 24
+-- Armando Castro, Stephanie Sandoval | Abr 22. 24
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Ingresa un empleado nuevo a la tabla correspondiente
+-- INGRESA UN EMPLEADO NUEVO A LA TABLA CORRESPONDIENTE
 
--- Descripion de parametros:
+-- Descripcion de parametros:
 	-- @inCedula: valor del documento de identidad del empleado
 	-- @inNombre: nombre del empleado
-	-- @inPuesto: puesto del empleado (string no int)
+	-- @inPuesto: nombre del puesto del empleado
 	-- @outResultCode: resultado del insertado en la tabla
 		-- si el codigo es 0, el codigo se ejecuto correctamente
 		-- si es otro valor, se puede consultar en la tabla de errores
@@ -24,36 +24,41 @@
 -- todas las acciones quedan documentadas en la tabla bitacora de eventos
 
 ALTER PROCEDURE dbo.IngresarEmpleado
-	@inCedula VARCHAR(64),
-	@inNombre VARCHAR(64),
-	@inPuesto VARCHAR(64),
-	@outResultCode INT OUTPUT
+	  @inCedula VARCHAR(64)
+	, @inNombre VARCHAR(64)
+	, @inPuesto VARCHAR(64)
+	, @outResultCode INT OUTPUT
 AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
 
 		-- DECLARAR VARIABLES:
+		
 		DECLARE @IDPuesto INT;
 		DECLARE @IDUsername INT;
 		DECLARE @descripcionError VARCHAR(128);
 		DECLARE @descripcionEvento VARCHAR(512);
 		DECLARE @outResultCodeEvento INT;
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- INICIALIZAR VARIABLES:
+		
 		SET @outResultCode = 0;
 
 		-- buscar el id usuario que esta activo:
-		SET @IDUsername = (SELECT TOP 1 [IDPostByUser] FROM BitacoraEvento ORDER BY [ID] DESC);
+		SET @IDUsername = (SELECT TOP 1 [IDPostByUser]
+			FROM BitacoraEvento
+			ORDER BY [ID] DESC);
 
 		-- buscar el id del puesto con base en el nombre:
-		SELECT @IDPuesto = ID FROM Puesto P WHERE P.Nombre = @inPuesto;
+		SELECT @IDPuesto = ID
+			FROM Puesto P
+			WHERE P.Nombre = @inPuesto;
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- VALIDAR DATOS:
+		
 		-- nombre no contiene solo letras o espacios en blanco:
 		IF (PATINDEX('%[^a-zA-Z ]%', @inNombre) != 0 OR LEN(@inNombre) <= 0)
 		BEGIN
@@ -62,11 +67,13 @@ BEGIN
 				FROM Error E 
 				WHERE E.Codigo = @outResultCode;
 
-			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ',
-				@inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
-
+			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError,
+				', cedula: ', @inCedula,
+				', nombre: ', @inNombre,
+				', puesto: ', @inPuesto));
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
-		END
+		END;
 
 		-- cedula no contiene solo numeros:
 		IF ISNUMERIC(@inCedula) != 1
@@ -76,15 +83,17 @@ BEGIN
 				FROM Error E
 				WHERE E.Codigo = @outResultCode;
 
-			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ',
-				@inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
-
+			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, 
+				', cedula: ', @inCedula,
+				', nombre: ', @inNombre,
+				', puesto: ', @inPuesto));
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
-		END
+		END;
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- REVISAR DUPLICADOS:
+		
 		-- existe algun empleado con el mismo nombre:
 		IF @outResultCode = 0 AND EXISTS (SELECT 1 FROM Empleado E WHERE E.Nombre = @inNombre)
 		BEGIN
@@ -93,11 +102,13 @@ BEGIN
 				FROM Error E 
 				WHERE E.Codigo = @outResultCode;
 
-			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ',
-				@inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
-			
+			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, 
+				', cedula: ', @inCedula,
+				', nombre: ', @inNombre,
+				', puesto: ', @inPuesto));
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
-		END
+		END;
 
 		-- existe algun empleado con la misma cedula
 		IF @outResultCode = 0 AND EXISTS (SELECT 1 FROM Empleado E WHERE E.ValorDocumentoIdentidad = @inCedula)
@@ -107,27 +118,42 @@ BEGIN
 				FROM Error E
 				WHERE E.Codigo = @outResultCode;
 
-			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ',
-				@inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
-			
+			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, 
+				', cedula: ', @inCedula,
+				', nombre: ', @inNombre,
+				', puesto: ', @inPuesto));
+			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Insercion no exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
-		END
+		END;
 
-		-- --------------------------------------------------------------- --
-
+		-- ------------------------------------------------------------- --
 		-- INSERTAR EMPLEADO:
-		-- (en caso de que no existan duplicados)
+		
+		-- en caso de que no existan duplicados:
 		IF @outResultCode = 0
 		BEGIN
-			INSERT Empleado (IDPuesto, ValorDocumentoIdentidad, Nombre, FechaContratacion, SaldoVacaciones, EsActivo)
-			VALUES (@IDPuesto, @inCedula, @inNombre, GETDATE(), 0, 1);
-			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @inNombre, ', puesto: ', @inPuesto));
+			INSERT Empleado (IDPuesto
+				, ValorDocumentoIdentidad
+				, Nombre
+				, FechaContratacion
+				, SaldoVacaciones
+				, EsActivo)
+			VALUES (@IDPuesto
+				, @inCedula
+				, @inNombre
+				, GETDATE()
+				, 0
+				, 1);
+			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula,
+				', nombre: ', @inNombre,
+				', puesto: ', @inPuesto));
 			EXEC dbo.IngresarEvento 'Insercion exitosa', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
-		END
+		END;
 
-		-- --------------------------------------------------------------- --
+		-- ------------------------------------------------------------- --
 
 		SELECT @outResultCode AS outResultCode;
+		
 	END TRY
 	
 	BEGIN CATCH
@@ -143,6 +169,7 @@ BEGIN
 		);
 
 		SET @outResultCode = 50008;
+		SELECT @outResultCode AS outResultCode;
 
 	END CATCH;
 	SET NOCOUNT OFF;
