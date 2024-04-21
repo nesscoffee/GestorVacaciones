@@ -14,7 +14,7 @@ public class Main {
         MovimientoRepository movrepo = MovimientoRepository.getInstance();
         Result result;
         
-        result = dbrepo.login("UsuarioScripts", "UsuarioScripts");
+         result = dbrepo.login("UsuarioScripts", "UsuarioScripts");
         for (int code : result.getResultCodes()){
             System.out.println("Login: " + code);
             if (code != 0){
@@ -69,11 +69,15 @@ public class Main {
             System.out.println(description);
         }
 
-        result = movrepo.listarMovimientos("8477366");
+        result = movrepo.listarMovimientos("6713229");
         int codeLista = result.getResultCodes().get(0);
         if (codeLista == 0){
-            for (Object movimiento : result.getDataset()){
-                System.out.println(((Movimiento)(movimiento)).toString());
+            if (result.getDataset().size() == 0){
+                System.out.println("sin movimientos");
+            } else {
+                for (Object movimiento : result.getDataset()){
+                    System.out.println(((Movimiento)(movimiento)).toString());
+                }
             }
         } else {
             System.out.println("Code: " + codeLista);

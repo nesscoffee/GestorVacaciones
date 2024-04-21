@@ -1,3 +1,11 @@
+// Armando Castro, Stephanie Sandoval | Abr 17. 24
+// Tarea Programada 02 | Base de Datos I
+
+/* CLASE REPOSITORIO
+ * Tiene los atributos y funcionalidades basicas de un repo
+ * Se usa para las conexiones a la BD con los diferentes objetos
+ */
+
 package Database;
 
 import java.sql.Connection;
@@ -9,6 +17,9 @@ public class Repository {
     protected Connection connection;
     protected String connectionURL;
     protected CallableStatement callableStatement;
+	
+	/* ------------------------------------------------------------ */
+	// CONSTRUCTOR DE LA CLASE
 
     protected Repository() {
         connectionURL = "jdbc:sqlserver://25.53.45.8:1433;"
@@ -19,7 +30,11 @@ public class Repository {
                         + "trustServerCertificate=true;"
                         + "loginTimeout=30;";
     }
-
+	
+	/* ------------------------------------------------------------ */
+	// CERRAR RECURSOS
+	// cierra la llamada a la BD y la conexion
+	
     protected void closeResources() {
         try {
             if (callableStatement != null) {
@@ -30,5 +45,4 @@ public class Repository {
             }
         } catch (Exception e) {}
     }
-
 }
