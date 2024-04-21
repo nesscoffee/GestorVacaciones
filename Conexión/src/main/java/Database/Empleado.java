@@ -10,68 +10,68 @@ package Database;
 
 public class Empleado {
 		
-	private String cedula, nombre, puesto;
-	private float saldo;
+    private String cedula, nombre, puesto;
+    private float saldo;
 		
-	/* ------------------------------------------------------------ */
-	// CONSTRUCTOR DE LA CLASE
+    /* ------------------------------------------------------------ */
+    // CONSTRUCTOR DE LA CLASE
 
-	public Empleado (String cedula, String nombre) {
-		this.cedula = cedula;
-		this.nombre = nombre;
-	}
+    public Empleado (String cedula, String nombre) {
+        this.cedula = cedula;
+	this.nombre = nombre;
+    }
 		
-	public Empleado(String cedula, String nombre, String puesto, float saldo) {
-		this.cedula = cedula;
-		this.nombre = nombre;
-		this.puesto = puesto;
-		this.saldo = saldo;
-	}
+    public Empleado(String cedula, String nombre, String puesto, float saldo) {
+	this.cedula = cedula;
+	this.nombre = nombre;
+	this.puesto = puesto;
+	this.saldo = saldo;
+    }
 		
-	/* ------------------------------------------------------------ */
-	// GETTERS Y SETTERS
+    /* ------------------------------------------------------------ */
+    // GETTERS Y SETTERS
 
-	public String getCedula () {
-		return cedula;
-	}
+    public String getCedula () {
+	return cedula;
+    }
 
-	public void setCedula (String cedula) {
-		this.cedula = cedula;
-	}
+    public void setCedula (String cedula) {
+	this.cedula = cedula;
+    }
 
-	public String getNombre() {
-		return this.nombre;
-	}
+    public String getNombre() {
+	return this.nombre;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public void setNombre(String nombre) {
+	this.nombre = nombre;
+    }
 
-	public String getPuesto() {
-		return this.puesto;
-	}
+    public String getPuesto() {
+	return this.puesto;
+    }
 
-	public void setPuesto(String puesto) {
-		this.puesto = puesto;
-	}
+    public void setPuesto(String puesto) {
+	this.puesto = puesto;
+    }
 
-	public float getSaldo() {
-		return this.saldo;
-	}
+    public float getSaldo() {
+	return this.saldo;
+    }
 
-	public void setSaldo (float saldo) {
-		this.saldo = saldo;
-	}
+    public void setSaldo (float saldo) {
+	this.saldo = saldo;
+    }
 		
-	/* ------------------------------------------------------------ */
-	// METODOS TO STRING
+    /* ------------------------------------------------------------ */
+    // METODOS TO STRING
 		
-	public String toStringShort (){
-		return "Empleado: " + this.nombre + " - ID: " + this.cedula;
-	}
+    public String toStringShort (){
+	return "Empleado: " + this.nombre + " - ID: " + this.cedula;
+    }
 
-	public String toStringLong (){
-		return "Empleado: " + this.nombre + " - ID: " + this.cedula 
-			+ " - Puesto: " + this.puesto + " - Saldo: " + this.saldo;
-	}
+    public String toStringLong (){
+	return "Empleado: " + this.nombre + " - ID: " + this.cedula 
+		+ " - Puesto: " + this.puesto + " - Saldo: " + this.saldo;
+    }
 }
