@@ -17,9 +17,9 @@ public class Repository {
     protected Connection connection;
     protected String connectionURL;
     protected CallableStatement callableStatement;
-	
-	/* ------------------------------------------------------------ */
-	// CONSTRUCTOR DE LA CLASE
+        
+    /* ------------------------------------------------------------ */
+    // CONSTRUCTOR DE LA CLASE
 
     protected Repository() {
         connectionURL = "jdbc:sqlserver://25.53.45.8:1433;"
@@ -30,11 +30,11 @@ public class Repository {
                         + "trustServerCertificate=true;"
                         + "loginTimeout=30;";
     }
-	
-	/* ------------------------------------------------------------ */
-	// CERRAR RECURSOS
-	// cierra la llamada a la BD y la conexion
-	
+        
+    /* ------------------------------------------------------------ */
+    // CERRAR RECURSOS
+    // cierra la llamada a la BD y la conexion
+        
     protected void closeResources() {
         try {
             if (callableStatement != null) {

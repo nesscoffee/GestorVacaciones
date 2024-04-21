@@ -18,9 +18,9 @@ public class Movimiento {
     private float monto, nuevoSaldo;
     private Date fecha;
     private Timestamp estampa;
-	
-	/* ------------------------------------------------------------ */
-	// CONSTRUCTOR DE LA CLASE
+        
+    /* ------------------------------------------------------------ */
+    // CONSTRUCTOR DE LA CLASE
 
     public Movimiento (Date fecha, String nombreMovimiento, float monto, float nuevoSaldo, String username, String IP, Timestamp estampa) {
         this.fecha = fecha;
@@ -31,9 +31,9 @@ public class Movimiento {
         this.IP = IP;
         this.estampa = estampa;
     }
-	
-	/* ------------------------------------------------------------ */
-	// GETTERS Y SETTERS
+        
+    /* ------------------------------------------------------------ */
+    // GETTERS Y SETTERS
 
     public void setNombreMovimiento (String nombreMovimiento){
         this.nombreMovimiento = nombreMovimiento;
@@ -90,9 +90,9 @@ public class Movimiento {
     public Date getFecha() {
         return this.fecha;
     }
-	
-	/* ------------------------------------------------------------ */
-	// METODO TO STRING
+        
+    /* ------------------------------------------------------------ */
+    // METODO TO STRING
 
     public String toString (){
         return fecha.toString() + " | " + nombreMovimiento + " | " + monto + " | " + nuevoSaldo + " | "

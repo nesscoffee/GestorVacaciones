@@ -19,18 +19,18 @@ public class Result {
     
     private ArrayList<Integer> resultCodes;
     private ArrayList<Object> dataset;
-	
-	/* ------------------------------------------------------------ */
-	// CONSTRUCTOR DE LA CLASE
+        
+    /* ------------------------------------------------------------ */
+    // CONSTRUCTOR DE LA CLASE
 
     public Result (){
         resultCodes = new ArrayList<>();
         dataset = new ArrayList<>();
     }
-	
-	/* ------------------------------------------------------------ */
-	// MODIFICAR ESTRUCTURAS
-	// metodos para agregar codigo de resultado y item de un dataset
+        
+    /* ------------------------------------------------------------ */
+    // MODIFICAR ESTRUCTURAS
+    // metodos para agregar codigo de resultado y item de un dataset
 
     public void addCode (int resultCode){
         resultCodes.add(resultCode);
@@ -39,9 +39,9 @@ public class Result {
     public void addDatasetItem (Object item){
         dataset.add(item);
     }
-	
-	/* ------------------------------------------------------------ */
-	// GETTERS
+        
+    /* ------------------------------------------------------------ */
+    // GETTERS
 
     public ArrayList<Integer> getResultCodes (){
         return this.resultCodes;
