@@ -93,7 +93,7 @@ BEGIN
 				WHERE E.Codigo = @outResultCode;
 
 			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError, ', cedula: ', @inCedula, ', nombre: ',
-				@nombre, ', saldo: ', @saldo - @inMonto, ', movimiento: ', @inNombreMovimiento, ', monto: ', @inMonto));
+				@nombre, ', saldo: ', @saldo, ', movimiento: ', @inNombreMovimiento, ', monto: ', @inMonto));
 
 			EXEC dbo.IngresarEvento 'Intento de insertar movimiento', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
@@ -109,7 +109,7 @@ BEGIN
 			VALUES (@IDEmpleado, @IDTipoMovimiento, CAST(GETDATE() AS DATE), @inMonto, @saldo, @IDUsername, HOST_NAME(), GETDATE())
 
 			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula, ', nombre: ', @nombre, ', saldo: '
-				, @saldo - @inMonto, ', movimiento: ', @inNombreMovimiento, ', monto: ', @inMonto));
+				, @saldo, ', movimiento: ', @inNombreMovimiento, ', monto: ', @inMonto));
 				
 			EXEC dbo.IngresarEvento 'Insertar movimiento exitoso', @IDUsername, @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;

@@ -45,7 +45,7 @@ BEGIN
 
 		-- generar la tabla:
 		SELECT M.[Fecha], 
-			TM.[Nombre],
+			TM.[Nombre] AS 'Nombre Movimiento',
 			M.[Monto], 
 			M.[NuevoSaldo] AS 'Nuevo Saldo',
 			U.[Username] AS 'Usuario',
@@ -77,6 +77,7 @@ BEGIN
 		);
 
 		SET @outResultCode = 50008;
+		SELECT @outResultCode AS outResultCode;
 
 	END CATCH;
 	SET NOCOUNT OFF;
