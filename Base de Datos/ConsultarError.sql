@@ -12,7 +12,7 @@
 		-- si es otro valor, se puede consultar (y no retorna descripcion)
 
 -- Ejemplo de ejecucion:
-	-- DECLARE @outDescricpcion VARCHAR(128);
+	-- DECLARE @@outDescripcion VARCHAR(128);
 	-- DECLARE @outResultCode INT;
 	-- EXECUTE dbo.ConsultarError 50001, @outDescripcion OUTPUT, @outResultCode OUTPUT
 
