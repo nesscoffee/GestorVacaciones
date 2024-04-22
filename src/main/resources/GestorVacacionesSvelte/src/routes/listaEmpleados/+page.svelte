@@ -19,15 +19,32 @@
     setInterval(updateTime, 1000);
 
     let parametroBusqueda = "";
-    const aplicarFiltro = () => {
-        let parametro = parseInt(parametroBusqueda);
+    const aplicarFiltro = async () => {
+        
+        await fetch('http://localhost:8080/api/getListaEmpleadosFiltro', {
+            method: "POST",
+            body: JSON.stringify({parametroBusqueda})
+        })
+        .then(res => { res.json().then(r => {
+            empleados = r
+        }) })
 
-        if ( isNaN(parametro) ) {
-            // Si son letras
-        } else {
-            // Si son numeros
-        }
     }
+
+    let selectorValue = 0;
+    const setSelector = (event) => {
+        selectorValue = event.currentTarget.value;
+    }
+
+    const logout = async () => {
+        await fetch('http://localhost:8080/api/logout')
+        .then(res => { res.json().then(r => {
+            if (r == 0) {
+                window.location.href = "http://localhost:8080/"
+            }
+        }) })
+    }
+
 </script>
 
 <div class="lista">
@@ -39,15 +56,25 @@
             {horaActual}
         </div>
         <div class="navbar-buttons">
-            <button disabled id="selectedButton">Consulta</button>
-            <button disabled id="selectedButton">Borrar</button>
-            <button disabled id="selectedButton">Modificar</button>
+            <a href={`/consultarEmpleado?empleado=${selectorValue}`}>
+                <button disabled={selectorValue==0 ? "a" : ""} >Consulta</button>
+            </a>
+            <a href={`/borrarEmpleado?empleado=${selectorValue}`}>
+                <button disabled={selectorValue==0 ? "a" : ""}>Borrar</button>
+            </a>
+            <a href={`/actualizarEmpleado?empleado=${selectorValue}`}>
+                <button disabled={selectorValue==0 ? "a" : ""}>Modificar</button>
+            </a>
+            <a href={`/listaMovimientos?empleado=${selectorValue}`}>
+                <button disabled={selectorValue==0 ? "a" : ""}>Lista Movimientos</button>
+            </a>
+            <a href={`/insertarMovimiento?empleado=${selectorValue}`}>
+                <button disabled={selectorValue==0 ? "a" : ""}>Insertar Movimiento</button>
+            </a>
             <a href="/insertarEmpleado">
                 <button>Insertar</button>
             </a>
-            <a href="/">
-                <button>Logout</button>
-            </a>
+            <button on:click={logout}>Logout</button>
         </div>
     </div>
 
@@ -66,8 +93,8 @@
             </tr>
             {#each empleados as empleado}
             <tr>
-                <td> <input type="radio" name="selector" id="selector" value={empleado.valorDocumentoIdentidad}> </td>
-                <td>{empleado.valorDocumentoIdentidad}</td>
+                <td> <input type="radio" name="selector" id="selector" value={empleado.cedula} on:change={setSelector}> </td>
+                <td>{empleado.cedula}</td>
                 <td>{empleado.nombre}</td>
             </tr>
             {/each}

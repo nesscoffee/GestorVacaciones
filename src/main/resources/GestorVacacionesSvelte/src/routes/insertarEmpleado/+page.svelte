@@ -3,8 +3,43 @@
     let nombre = '';
     let idPuesto = '';
 
-    let insertarEmpleado = () => {
+    let insertarEmpleado = async () => {
+        if (docId == '' || nombre == '' || !idPuesto) {
+            alert('Aun hay espacios en blanco.');
+        } else {
 
+            await fetch("http://localhost:8080/api/insertarEmpleado", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify( {docId, nombre, idPuesto} )
+            })
+            .then( res => { res.json().then(r => {
+                switch (r) {
+                case 50009:
+                    alert('El nombre contiene caracteres que no están en el alfabeto.')
+                    break;
+                case 50010:
+                    alert('La cédula contiene caracteres que no son números.')
+                    break;
+                case 50005:
+                    alert('Ya existe un empleado con ese nombre.')
+                    break;
+                case 50004:
+                    alert('Ya existe un empleado con esa cedula.')
+                    break;
+                case 50008:
+                    alert('Ocurrio un error interno en la base de datos.')
+                    break;
+                case 0:
+                    alert('Empleado actualizado con exito')
+                    window.location.href = "http://localhost:8080/listaEmpleado"
+                    break;
+                }
+            }) } )
+
+        }
     }
 </script>
 
@@ -20,8 +55,17 @@
         <label for="nombre" style="color: red;">*</label>
             <br>
         <label for="idPuesto">Escoja un puesto:</label>
-        <select name="idPuesto" id="idPuesto">
-            <!-- Elementos -->
+        <select name="idPuesto" id="idPuesto" bind:value={idPuesto}>
+            <option value="Cajero">Cajero</option>
+            <option value="Camarero">Camarero</option>
+            <option value="Cuidador">Cuidador</option>
+            <option value="Conductor">Conductor</option>
+            <option value="Asistente">Asistente</option>
+            <option value="Recepcionista">Recepcionista</option>
+            <option value="Fontanero">Fontanero</option>
+            <option value="Niñera">Niñera</option>
+            <option value="Conserje">Conserje</option>
+            <option value="Albañil">Albañil</option>
         </select>
         <label for="idPuesto" style="color: red;">*</label>
             <br>

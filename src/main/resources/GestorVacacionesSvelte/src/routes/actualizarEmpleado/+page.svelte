@@ -1,13 +1,60 @@
 <script>
     import { page } from '$app/stores';
 
-    let idEmpleado = $page.url.searchParams.get('empleado');
+    let cedula = $page.url.searchParams.get('empleado');
+    let oldDocId = '';
     let docId = '';
     let nombre = '';
     let idPuesto = '';
 
-    let actualizarEmpleado = () => {
+    let loadData = async () => {
+        await fetch("http://localhost:8080/api/getInfoEmpleado", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify( {cedula} )
+        })
+        .then( res => { res.json().then(r => {
+            oldDocId = docId = r[0].cedula;
+            nombre = r[0].nombre;
+            idPuesto = r[0].puesto;
+        }) } )
+    }
 
+    $: loadData();
+
+    let actualizarEmpleado = async () => {
+        await fetch("http://localhost:8080/api/actualizarEmpleado", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify( {oldDocId, docId, nombre, idPuesto} )
+        })
+        .then( res => { res.json().then(r => {
+            switch (r) {
+                case 50009:
+                    alert('El nombre contiene caracteres que no están en el alfabeto.')
+                    break;
+                case 50010:
+                    alert('La cédula contiene caracteres que no son números.')
+                    break;
+                case 50007:
+                    alert('Ya existe un empleado con ese nombre.')
+                    break;
+                case 50006:
+                    alert('Ya existe un empleado con esa cedula.')
+                    break;
+                case 50008:
+                    alert('Ocurrio un error interno en la base de datos.')
+                    break;
+                case 0:
+                    alert('Empleado actualizado con exito')
+                    window.location.href = "http://localhost:8080/listaEmpleado"
+                    break;
+            }
+        }) } )
     }
 </script>
 
@@ -23,8 +70,17 @@
         <label for="nombre" style="color: red;">*</label>
             <br>
         <label for="idPuesto">Escoja un puesto:</label>
-        <select name="idPuesto" id="idPuesto">
-            <!-- Elementos -->
+        <select name="idPuesto" id="idPuesto" bind:value={idPuesto}>
+            <option value="Cajero">Cajero</option>
+            <option value="Camarero">Camarero</option>
+            <option value="Cuidador">Cuidador</option>
+            <option value="Conductor">Conductor</option>
+            <option value="Asistente">Asistente</option>
+            <option value="Recepcionista">Recepcionista</option>
+            <option value="Fontanero">Fontanero</option>
+            <option value="Niñera">Niñera</option>
+            <option value="Conserje">Conserje</option>
+            <option value="Albañil">Albañil</option>
         </select>
         <label for="idPuesto" style="color: red;">*</label>
             <br>

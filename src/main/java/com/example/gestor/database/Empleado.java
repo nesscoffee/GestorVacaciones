@@ -1,55 +1,77 @@
+// Armando Castro, Stephanie Sandoval | Abr 17. 24
+// Tarea Programada 02 | Base de Datos I
+
+/* CLASE EMPLEADO
+ * Guarda informacion relacionada con los empleados
+ * Almacena: cedula, nombre, puesto y saldo
+ */
+
 package com.example.gestor.database;
 
 public class Empleado {
 	
-	private int id;
-	private String valorDocumentoIdentidad;
-	private String nombre;
-	private float saldoVacaciones;
-	
-	public Empleado(int pId, String pDocId, String pNombre, float pSaldoVacaciones) {
-		id = pId;
-		valorDocumentoIdentidad = pDocId;
-		nombre = pNombre;
-		saldoVacaciones = pSaldoVacaciones;
-	}
-	
-	public Empleado(String pDocId, String pNombre, float pSaldoVacaciones) {
-		valorDocumentoIdentidad = pDocId;
-		nombre = pNombre;
-		saldoVacaciones = pSaldoVacaciones;
-	}
+    private String cedula, nombre, puesto;
+    private float saldo;
+		
+    /* ------------------------------------------------------------ */
+    // CONSTRUCTOR DE LA CLASE
 
-	public int getId() {
-		return id;
-	}
+    public Empleado (String cedula, String nombre) {
+        this.cedula = cedula;
+	this.nombre = nombre;
+    }
+		
+    public Empleado(String cedula, String nombre, String puesto, float saldo) {
+	this.cedula = cedula;
+	this.nombre = nombre;
+	this.puesto = puesto;
+	this.saldo = saldo;
+    }
+		
+    /* ------------------------------------------------------------ */
+    // GETTERS Y SETTERS
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public String getCedula () {
+	return cedula;
+    }
 
-	public String getValorDocumentoIdentidad() {
-		return valorDocumentoIdentidad;
-	}
+    public void setCedula (String cedula) {
+	this.cedula = cedula;
+    }
 
-	public void setValorDocumentoIdentidad(String valorDocumentoIdentidad) {
-		this.valorDocumentoIdentidad = valorDocumentoIdentidad;
-	}
+    public String getNombre() {
+	return this.nombre;
+    }
 
-	public String getNombre() {
-		return nombre;
-	}
+    public void setNombre(String nombre) {
+	this.nombre = nombre;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public String getPuesto() {
+	return this.puesto;
+    }
 
-	public float getSaldoVacaciones() {
-		return saldoVacaciones;
-	}
+    public void setPuesto(String puesto) {
+	this.puesto = puesto;
+    }
 
-	public void setSaldoVacaciones(float saldoVacaciones) {
-		this.saldoVacaciones = saldoVacaciones;
-	}
-	
+    public float getSaldo() {
+	return this.saldo;
+    }
+
+    public void setSaldo (float saldo) {
+	this.saldo = saldo;
+    }
+		
+    /* ------------------------------------------------------------ */
+    // METODOS TO STRING
+		
+    public String toStringShort (){
+	return "Empleado: " + this.nombre + " - ID: " + this.cedula;
+    }
+
+    public String toStringLong (){
+	return "Empleado: " + this.nombre + " - ID: " + this.cedula 
+		+ " - Puesto: " + this.puesto + " - Saldo: " + this.saldo;
+    }
 }
