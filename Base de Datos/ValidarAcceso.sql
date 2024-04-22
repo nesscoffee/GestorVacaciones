@@ -92,14 +92,14 @@ BEGIN
 		IF DATEDIFF(MINUTE, @ultimoPostTime, GETDATE()) < 5 AND @ultimaEntrada = 'Login deshabilitado'
 		BEGIN
 			SET @outResultCode = 50003;                          -- error: login deshabilitado
-			EXEC dbo.IngresarEvento 'Login deshabilitado', 'UsuarioScripts', @inIP, ' ', @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Login deshabilitado', 1, @inIP, ' ', @outResultCodeEvento OUTPUT;
 		END;
 
 		-- revisar si hubieron mas de 5 logins no existosos:
 		IF @outResultCode = 0 AND @intentosLogin >= 5
 		BEGIN
 			SET @outResultCode = 50003;                          -- error: login deshabilitado
-			EXEC dbo.IngresarEvento 'Login deshabilitado', 'UsuarioScripts', @inIP, ' ', @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Login deshabilitado', 1, @inIP, ' ', @outResultCodeEvento OUTPUT;
 		END;
 		
 		-- ------------------------------------------------------------- --
@@ -110,7 +110,7 @@ BEGIN
 		BEGIN
 			SET @outResultCode = 50001;                          -- error: usuario no existe
 			SET @descripcion = (SELECT CONCAT ('intentos: ', CAST(@intentosLogin AS VARCHAR(1)), ', codigo 50001'));
-			EXEC dbo.IngresarEvento 'Login No Exitoso', 'UsuarioScripts', @inIP, @descripcion, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Login No Exitoso', 1, @inIP, @descripcion, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- revisar que, dado que el usuario existe, la contrasena tambien existe:
@@ -118,7 +118,7 @@ BEGIN
 		BEGIN
 			SET @outResultCode = 50002;                          -- error: contrasena no existe
 			SET @descripcion = (SELECT CONCAT ('intentos: ', CAST(@intentosLogin AS VARCHAR(1)), ', codigo 50002'));
-			EXEC dbo.IngresarEvento 'Login No Exitoso', 'UsuarioScripts', @inIP, @descripcion, @outResultCodeEvento OUTPUT;
+			EXEC dbo.IngresarEvento 'Login No Exitoso', 1, @inIP, @descripcion, @outResultCodeEvento OUTPUT;
 		END;
 
 		-- revisar que, dado que ambos datos existen, estos coincidan:
