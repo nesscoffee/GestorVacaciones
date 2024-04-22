@@ -2,7 +2,7 @@
 -- Tarea Programada 02 | Base de Datos I
 
 -- Stored Procedure:
--- Ingresa un movimiento nuevo a un empleado en especifico
+-- INGRESA UN MOVIMIENTO NUEVO A UN EMPLEADO EN ESPECIFICO
 
 -- Descripcion de parametros:
 	-- @inCedula: valor del documento de identidad del empleado
@@ -42,7 +42,8 @@ BEGIN
 		DECLARE @nombre VARCHAR(64);
 		DECLARE @outResultCodeEvento INT;
 		DECLARE @postIP VARCHAR(64);
-		DECLARE @saldo MONEY;
+		DECLARE @saldoPrevio MONEY;
+		DECLARE @saldoNuevo MONEY;
 		DECLARE @tipoMovimiento VARCHAR(16);
 
 		-- ------------------------------------------------------------- --
@@ -76,7 +77,7 @@ BEGIN
 			WHERE E.ValorDocumentoIdentidad = @inCedula;
 
 		-- buscar el saldo actual del empleado:
-		SELECT @saldo = E.SaldoVacaciones 
+		SELECT @saldoPrevio = E.SaldoVacaciones 
 			FROM Empleado E 
 			WHERE E.ValorDocumentoIdentidad = @inCedula;
 
@@ -87,6 +88,8 @@ BEGIN
 
 		-- ------------------------------------------------------------- --
 		-- VALIDAR DATOS:
+
+		BEGIN TRANSACTION tAgregarMovimiento;
 		
 		-- monto no deberia ser negativo:
 		IF (@inMonto < 0)
@@ -95,15 +98,15 @@ BEGIN
 		END;
 
 		-- calculo del nuevo monto:
-		SET @saldo = CASE
+		SET @saldoNuevo = CASE
 			WHEN @tipoMovimiento = 'Credito' 
-				THEN @saldo + @inMonto
+				THEN @saldoPrevio + @inMonto
 			WHEN @tipoMovimiento = 'Debito' 
-				THEN @saldo - @inMonto
+				THEN @saldoPrevio - @inMonto
 			END;
 
 		-- validacion de que el monto no sea "muy" negativo:
-		IF @outResultCode = 0 AND @saldo <= -30
+		IF @outResultCode = 0 AND @saldoNuevo <= -30
 		BEGIN
 			SET @outResultCode = 50011;
 			SELECT @descripcionError = Descripcion 
@@ -113,7 +116,7 @@ BEGIN
 			SET @descripcionEvento = (SELECT CONCAT('error: ', @descripcionError,
 				', cedula: ', @inCedula,
 				', nombre: ', @nombre,
-				', saldo: ', @saldo,
+				', saldo: ', @saldoPrevio,
 				', movimiento: ', @inNombreMovimiento,
 				', monto: ', @inMonto));
 			-- guardar evento en la bitacora:
@@ -126,35 +129,43 @@ BEGIN
 		-- aplicacion del movimiento si saldo no es muy negativo:
 		IF @outResultCode = 0
 		BEGIN
+			-- actualizar el saldo del empleado:
 			UPDATE Empleado
-			SET SaldoVacaciones = @saldo
+			SET SaldoVacaciones = @saldoNuevo
 			WHERE ValorDocumentoIdentidad = @inCedula;
 
-			INSERT Movimiento (IDEmpleado
-				, IDTipoMovimiento
-				, Fecha
-				, Monto
-				, NuevoSaldo
-				, IDPostByUser
-				, PostInIP
-				, PostTime)
-			VALUES (@IDEmpleado
-				, @IDTipoMovimiento
-				, CAST(GETDATE() AS DATE)
-				, @inMonto
-				, @saldo
-				, @IDUsername
-				, @postIP
-				, GETDATE());
+            -- insertar el movimiento en la tabla:
+			INSERT INTO Movimiento (
+				IDEmpleado,
+				IDTipoMovimiento,
+				Fecha,
+				Monto,
+				NuevoSaldo,
+				IDPostByUser,
+				PostInIP,
+				PostTime
+			)
+			VALUES (
+				@IDEmpleado,
+				@IDTipoMovimiento,
+				CAST(GETDATE() AS DATE),
+				@inMonto,
+				@saldoNuevo,
+				@IDUsername,
+				@postIP,
+				GETDATE()
+			);
 
+			-- guardar el evento en la bit�cora:
 			SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula,
 				', nombre: ', @nombre,
-				', saldo: ' , @saldo,
+				', saldo: ', @saldoNuevo,
 				', movimiento: ', @inNombreMovimiento,
 				', monto: ', @inMonto));
-			-- guardar evento en la bitacora:
 			EXEC dbo.IngresarEvento 'Insertar movimiento exitoso', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
+
+		COMMIT TRANSACTION tAgregarMovimiento;
 		
 		-- ------------------------------------------------------------- --
 
@@ -163,6 +174,12 @@ BEGIN
 	END TRY
 	
 	BEGIN CATCH
+
+		IF @@TRANCOUNT > 0
+		BEGIN
+			ROLLBACK TRANSACTION tAgregarMovimiento;
+		END;
+
 		INSERT INTO DBError VALUES (
 			SUSER_SNAME(),
 			ERROR_NUMBER(),

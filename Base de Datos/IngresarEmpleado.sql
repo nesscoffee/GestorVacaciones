@@ -52,6 +52,8 @@ BEGIN
 
 		-- ------------------------------------------------------------- --
 		-- VALIDAR DATOS:
+
+		BEGIN TRANSACTION tAgregarEmpleado;
 		
 		-- nombre no contiene solo letras o espacios en blanco:
 		IF (PATINDEX('%[^a-zA-Z ]%', @inNombre) != 0 OR LEN(@inNombre) <= 0)
@@ -144,6 +146,8 @@ BEGIN
 			EXEC dbo.IngresarEvento 'Insercion exitosa', 0, '', @descripcionEvento, @outResultCodeEvento OUTPUT;
 		END;
 
+		COMMIT TRANSACTION tAgregarEmpleado;
+
 		-- ------------------------------------------------------------- --
 
 		SELECT @outResultCode AS outResultCode;
@@ -151,6 +155,12 @@ BEGIN
 	END TRY
 	
 	BEGIN CATCH
+
+		IF @@TRANCOUNT > 0
+		BEGIN
+			ROLLBACK TRANSACTION tAgregarEmpleado;
+		END;
+
 		INSERT INTO DBError VALUES (
 			SUSER_SNAME(),
 			ERROR_NUMBER(),

@@ -2,7 +2,7 @@
 -- Tarea Programada 02 | Base de Datos I
 
 -- Script:
--- Crea las tablas de la base de datos
+-- CREA LAS TABLAS DE LA BASE DE DATOS
 
 -- Notas adicionales:
 -- al final de este script hay un codigo comentado
