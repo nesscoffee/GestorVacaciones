@@ -55,12 +55,12 @@ BEGIN
 			 , U.[Username] AS 'Usuario'
 			 , M.[PostInIP]
 			 , M.[PostTime]
-        FROM Movimiento M
-        INNER JOIN TipoMovimiento TM ON M.[IDTipoMovimiento] = TM.[ID]
-        INNER JOIN Usuario U ON M.[IDPostByUser] = U.[ID]
-        INNER JOIN Empleado E ON M.[IDEmpleado] = E.[ID]
-        WHERE E.[ValorDocumentoIdentidad] = @inCedula
-        ORDER BY M.[PostTime] DESC;
+		FROM Movimiento M
+		INNER JOIN TipoMovimiento TM ON M.[IDTipoMovimiento] = TM.[ID]
+		INNER JOIN Usuario U ON M.[IDPostByUser] = U.[ID]
+		INNER JOIN Empleado E ON M.[IDEmpleado] = E.[ID]
+		WHERE E.[ValorDocumentoIdentidad] = @inCedula
+		ORDER BY M.[PostTime] DESC;
 
 		-- guardar el evento en la bitacora:
 		SET @descripcionEvento = (SELECT CONCAT('cedula: ', @inCedula,

@@ -40,9 +40,9 @@ BEGIN
 			 , E.[Nombre]
 			 , P.[Nombre] AS 'Puesto'
 			 , E.[SaldoVacaciones] AS 'Saldo Vacaciones'
-        FROM Empleado E
-        INNER JOIN Puesto P ON E.[IDPuesto] = P.[ID]
-        WHERE E.[ValorDocumentoIdentidad] = @inCedula 
+		FROM Empleado E
+		INNER JOIN Puesto P ON E.[IDPuesto] = P.[ID]
+		WHERE E.[ValorDocumentoIdentidad] = @inCedula 
 			AND E.[EsActivo] = 1;
 			
 		-- ------------------------------------------------------------- --
