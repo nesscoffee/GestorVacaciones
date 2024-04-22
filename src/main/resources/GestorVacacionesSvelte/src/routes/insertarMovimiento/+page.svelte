@@ -51,7 +51,7 @@
                         break;
                     case 0:
                         alert("Movimiento insertado con exito.")
-                        window.location.href = "http://localhost:8080/listaEmpleado"
+                        window.location.href = "http://localhost:8080/listaEmpleados"
                         break;
                 }
             }) } )

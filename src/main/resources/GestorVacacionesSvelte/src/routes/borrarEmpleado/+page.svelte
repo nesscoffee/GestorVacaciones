@@ -36,7 +36,7 @@
                     break;
                 case 0:
                     alert(`Empleado ${nombre}, cedula ${docId}, borrado exitosamente.`);
-                    window.location.href = "http://localhost:8080/listaEmpleado"
+                    window.location.href = "http://localhost:8080/listaEmpleados"
                     break;
             }
         }) } )
